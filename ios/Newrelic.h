@@ -1,5 +1,7 @@
+#import <Foundation/Foundation.h>
 #import <React/RCTBridgeModule.h>
+#import <NewRelicAgent/NewRelic.h>
 
-@interface Newrelic : NSObject <RCTBridgeModule>
+@interface RNNewRelic : NSObject <RCTBridgeModule>
 
 @end

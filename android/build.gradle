@@ -5,17 +5,20 @@ buildscript {
   repositories {
     google()
     jcenter()
+    mavenCentral()
   }
 
   dependencies {
     classpath 'com.android.tools.build:gradle:3.2.1'
     // noinspection DifferentKotlinGradleVersion
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    classpath "com.newrelic.agent.android:agent-gradle-plugin:5.+"
   }
 }
 
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
+apply plugin: 'newrelic'
 
 def getExtOrDefault(name) {
   return rootProject.ext.has(name) ? rootProject.ext.get(name) : project.properties['Newrelic_' + name]
@@ -33,9 +36,9 @@ android {
     targetSdkVersion getExtOrIntegerDefault('targetSdkVersion')
     versionCode 1
     versionName "1.0"
-    
+
   }
-  
+
   buildTypes {
     release {
       minifyEnabled false
@@ -127,4 +130,7 @@ dependencies {
   // noinspection GradleDynamicVersion
   api 'com.facebook.react:react-native:+'
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
+  // newrelic agent
+  implementation "com.newrelic.agent.android:android-agent:5.+"
 }

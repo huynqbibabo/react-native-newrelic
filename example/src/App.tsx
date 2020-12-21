@@ -1,14 +1,13 @@
 import * as React from 'react';
 
 import { StyleSheet, View, Text } from 'react-native';
-import Newrelic from 'react-native-newrelic';
-
+// import { nrRecordMetric } from 'react-native-newrelic';
 
 export default function App() {
   const [result, setResult] = React.useState<number | undefined>();
 
   React.useEffect(() => {
-    Newrelic.multiply(3, 7).then(setResult);
+    setResult(32);
   }, []);
 
   return (
