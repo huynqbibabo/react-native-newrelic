@@ -23,8 +23,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		134814201AA4EA6300B7C361 /* libNewrelic.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libNewrelic.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		B3E7B5891CC2AC0600A0062D /* Newrelic.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Newrelic.m; sourceTree = "<group>"; };
+		134814201AA4EA6300B7C361 /* libRNNewrelic.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRNNewrelic.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		B3E7B5891CC2AC0600A0062D /* RNNewRelicModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNNewRelicModule.m; sourceTree = "<group>"; };
 		F4FF95D5245B92E700C19C63 /* Newrelic-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Newrelic-Bridging-Header.h"; sourceTree = "<group>"; };
 		F4FF95D6245B92E800C19C63 /* Newrelic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Newrelic.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -43,7 +43,7 @@
 		134814211AA4EA7D00B7C361 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				134814201AA4EA6300B7C361 /* libNewrelic.a */,
+				134814201AA4EA6300B7C361 /* libRNNewrelic.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -52,7 +52,7 @@
 			isa = PBXGroup;
 			children = (
 				F4FF95D6245B92E800C19C63 /* Newrelic.swift */,
-				B3E7B5891CC2AC0600A0062D /* Newrelic.m */,
+				B3E7B5891CC2AC0600A0062D /* RNNewRelicModule.m */,
 				F4FF95D5245B92E700C19C63 /* Newrelic-Bridging-Header.h */,
 				134814211AA4EA7D00B7C361 /* Products */,
 			);
@@ -61,9 +61,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		58B511DA1A9E6C8500147676 /* Newrelic */ = {
+		58B511DA1A9E6C8500147676 /* RNNewrelic */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 58B511EF1A9E6C8500147676 /* Build configuration list for PBXNativeTarget "Newrelic" */;
+			buildConfigurationList = 58B511EF1A9E6C8500147676 /* Build configuration list for PBXNativeTarget "RNNewrelic" */;
 			buildPhases = (
 				58B511D71A9E6C8500147676 /* Sources */,
 				58B511D81A9E6C8500147676 /* Frameworks */,
@@ -73,9 +73,9 @@
 			);
 			dependencies = (
 			);
-			name = Newrelic;
+			name = RNNewrelic;
 			productName = RCTDataManager;
-			productReference = 134814201AA4EA6300B7C361 /* libNewrelic.a */;
+			productReference = 134814201AA4EA6300B7C361 /* libRNNewrelic.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -92,7 +92,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 58B511D61A9E6C8500147676 /* Build configuration list for PBXProject "Newrelic" */;
+			buildConfigurationList = 58B511D61A9E6C8500147676 /* Build configuration list for PBXProject "RNNewrelic" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -105,7 +105,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				58B511DA1A9E6C8500147676 /* Newrelic */,
+				58B511DA1A9E6C8500147676 /* RNNewrelic */,
 			);
 		};
 /* End PBXProject section */
@@ -223,11 +223,11 @@
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../../../React/**",
 					"$(SRCROOT)/../../react-native/React/**",
-					"$(SRCROOT)/../../../../ios/Pods/NewRelicAgent/**",
+					"$(SRCROOT)/../../ios/Pods/NewRelicAgent/**",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = Newrelic;
+				PRODUCT_NAME = RNNewrelic;
 				SKIP_INSTALL = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "Newrelic-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -243,11 +243,11 @@
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../../../React/**",
 					"$(SRCROOT)/../../react-native/React/**",
-					"$(SRCROOT)/../../../../ios/Pods/NewRelicAgent/**",
+					"$(SRCROOT)/../../ios/Pods/NewRelicAgent/**",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = Newrelic;
+				PRODUCT_NAME = RNNewrelic;
 				SKIP_INSTALL = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "Newrelic-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -257,7 +257,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		58B511D61A9E6C8500147676 /* Build configuration list for PBXProject "Newrelic" */ = {
+		58B511D61A9E6C8500147676 /* Build configuration list for PBXProject "RNNewrelic" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				58B511ED1A9E6C8500147676 /* Debug */,
@@ -266,7 +266,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		58B511EF1A9E6C8500147676 /* Build configuration list for PBXNativeTarget "Newrelic" */ = {
+		58B511EF1A9E6C8500147676 /* Build configuration list for PBXNativeTarget "RNNewrelic" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				58B511F01A9E6C8500147676 /* Debug */,
