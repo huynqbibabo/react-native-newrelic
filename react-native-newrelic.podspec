@@ -13,9 +13,10 @@ Pod::Spec.new do |s|
   s.platforms    = { :ios => "10.0" }
   s.source       = { :git => "https://github.com/huynqbibabo/react-native-newrelic.git", :tag => "#{s.version}" }
 
-  
-  s.source_files = "ios/**/*.{h,m,mm,swift}"
-  
+
+  s.source_files = "ios/RNNewrelic/*.{h,m}"
+
 
   s.dependency "React-Core"
+  s.dependency "NewRelicAgent"
 end

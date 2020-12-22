@@ -1,8 +1,6 @@
 #import "RNNewRelicModule.h"
-#import <Foundation/Foundation.h>
-#import "NewRelic/NewRelic.h"       // "NewRelicAgent/NewRelic.h" for versions < 7.0
 
-@implementation Newrelic
+@implementation RNNewRelic
 
 RCT_EXPORT_MODULE();
 
