@@ -6,7 +6,8 @@
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
-    "start": "react-native start"
+    "start": "react-native start",
+    "clean-project": "rm -rf $TMPDIR/react-* && rm -rf $TMPDIR/metro-* && watchman watch-del-all && rm -rf node_modules && yarn cache clean && rm -rf ios/build && rm -rf ios/Podfile.lock && rm -rf ios/pods && rm -rf android/build && rm -rf android/app/build"
   },
   "dependencies": {
     "react": "16.13.1",
