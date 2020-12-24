@@ -21,11 +21,15 @@
 - Android native requirements https://docs.newrelic.com/docs/mobile-monitoring/new-relic-mobile-android/get-started/new-relic-android-compatibility-requirements
 
 ## Installation
-
+- Yarn
 ```sh
 yarn add @bibabovn/react-native-newrelic
 ```
-
+- React native autolink package
+- Don't forget to run:
+```shell
+  npx pod-install
+```
 ### Android Setup
 - Install the New Relic native Android agent ([instructions here](https://docs.newrelic.com/docs/mobile-monitoring/new-relic-mobile-android/install-configure/install-android-apps-gradle-android-studio))
 - Update build.gradle:
@@ -93,11 +97,11 @@ yarn add @bibabovn/react-native-newrelic
   - Integrate and start the agent
     - In your ``AppDelegate.m`` file
     ```
-      #import <NewRelicAgent/NewRelic.h>
+      #import <NewRelic/NewRelic.h>
     ```
     - add this call as the first line of ``application:didFinishLaunchingWithOptions``
     ```
-      [NewRelicAgent startWithApplicationToken:@"GENERATED_TOKEN"];
+      [NewRelic startWithApplicationToken:@"GENERATED_TOKEN"];
     ```
   - Automatically upload your dSYM
     - In XCode, select your project in the navigator, then click on the application target.
@@ -112,7 +116,7 @@ yarn add @bibabovn/react-native-newrelic
     ```
       #ifdef __OBJC__
 
-      #import <NewRelicAgent/NewRelic.h>
+      #import <NewRelic/NewRelic.h>
 
       #endif
     ```
