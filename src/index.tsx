@@ -1,6 +1,7 @@
 import { NativeModules } from 'react-native';
 
-const { Newrelic } = NativeModules;
+console.log(NativeModules);
+const { RNNewRelic } = NativeModules;
 
 interface NRError {
   message?: string;
@@ -11,25 +12,46 @@ interface NRError {
   name?: string;
 }
 
+/**
+ * Call this to initialize the SDK. Pass a name of the app's landing screen as an argument.
+ * @param firstScreen
+ */
 export function nrInit(firstScreen: string) {
-  Newrelic.nrInit(firstScreen);
+  RNNewRelic.nrInit(firstScreen);
 }
 
+/**
+ * Call this to associate a user with custom events
+ * @param userId
+ */
 export function nrAddUserId(userId: string) {
-  Newrelic.addUserId(userId);
+  RNNewRelic.addUserId(userId);
 }
 
-export function nrRecordMetric(inEventType: string, inJson: string) {
-  Newrelic.recordMetric(inEventType, JSON.stringify(inJson));
+/**
+ * Call this to record a custom metric
+ * @param inEventType
+ * @param inJson metric data will convert to json type
+ */
+export function nrRecordMetric(inEventType: string, inJson: any) {
+  RNNewRelic.recordMetric(inEventType, JSON.stringify(inJson));
 }
 
+/**
+ * Call this to record an interaction event.
+ * @param screen is screen name
+ */
 export function nrInteraction(screen: string) {
   console.log(screen);
-  Newrelic.interaction(screen);
+  RNNewRelic.interaction(screen);
 }
 
+/**
+ * Call this to record a custom error event.
+ * @param inError is JavaScript exception
+ */
 export function nrLog(inError: NRError) {
-  Newrelic.logSend(
+  RNNewRelic.logSend(
     'log',
     inError.message,
     inError.stack,
@@ -40,8 +62,12 @@ export function nrLog(inError: NRError) {
   );
 }
 
+/**
+ * Call this to record a custom error event at error level
+ * @param inError is JavaScript exception
+ */
 export function nrError(inError: NRError) {
-  Newrelic.logSend(
+  RNNewRelic.logSend(
     'error',
     inError.message,
     inError.stack,
@@ -52,8 +78,12 @@ export function nrError(inError: NRError) {
   );
 }
 
+/**
+ * Call this to record a custom error event at warning level
+ * @param inError is JavaScript exception
+ */
 export function nrWarning(inError: NRError) {
-  Newrelic.logSend(
+  RNNewRelic.logSend(
     'warning',
     inError.message,
     inError.stack,
@@ -64,8 +94,12 @@ export function nrWarning(inError: NRError) {
   );
 }
 
+/**
+ * Call this to record a custom error event at critical level
+ * @param inError is JavaScript exception
+ */
 export function nrCritical(inError: NRError) {
-  Newrelic.logSend(
+  RNNewRelic.logSend(
     'critical',
     inError.message,
     inError.stack,

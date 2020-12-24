@@ -10,7 +10,9 @@ import com.facebook.react.ReactInstanceManager;
 import com.facebook.soloader.SoLoader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import com.reactnativenewrelic.NewrelicPackage;
+
+import com.newrelic.agent.android.NewRelic;
+import com.reactnativenewrelic.RNNewRelicPackage;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -27,7 +29,7 @@ public class MainApplication extends Application implements ReactApplication {
           List<ReactPackage> packages = new PackageList(this).getPackages();
           // Packages that cannot be autolinked yet can be added manually here, for NewrelicExample:
           // packages.add(new MyReactNativePackage());
-          packages.add(new NewrelicPackage());
+          packages.add(new RNNewRelicPackage());
           return packages;
         }
 
@@ -45,6 +47,10 @@ public class MainApplication extends Application implements ReactApplication {
   @Override
   public void onCreate() {
     super.onCreate();
+    NewRelic.withApplicationToken(
+      "yourApplicationToken"
+    ).start(this);
+
     SoLoader.init(this, /* native exopackage */ false);
     initializeFlipper(this, getReactNativeHost().getReactInstanceManager()); // Remove this line if you don't want Flipper enabled
   }

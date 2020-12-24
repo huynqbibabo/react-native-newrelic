@@ -1,29 +1,20 @@
 package com.reactnativenewrelic
 
-import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import org.json.JSONException
 import org.json.JSONObject
-import java.util.*
-
-
-import android.util.Log;
-import com.facebook.react.bridge.NativeModule;
-import com.facebook.react.bridge.ReactContext;
 import com.newrelic.agent.android.NewRelic;
-
-import org.json.JSONArray;
 
 import java.util.Date;
 import java.util.HashMap;
 
 
-class NewrelicModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
+class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 
   override fun getName(): String {
-    return "Newrelic"
+    return "RNNewRelic"
   }
 
   private val DURATION_SHORT_KEY = "SHORT"
@@ -43,8 +34,10 @@ class NewrelicModule(reactContext: ReactApplicationContext) : ReactContextBaseJa
 
   @ReactMethod
   fun addUserId(userId: String?) {
-    val localMap: MutableMap<*, *> = HashMap<Any, Any>()
-    localMap["UserId"] = userId
+    val localMap:HashMap<String,Any> = HashMap<String,Any>()
+    if (userId != null) {
+      localMap.put("UserId", userId)
+    }
     NewRelic.recordCustomEvent("RnUserId", localMap)
   }
 
@@ -53,7 +46,7 @@ class NewrelicModule(reactContext: ReactApplicationContext) : ReactContextBaseJa
     val mainObject: JSONObject
     var jsonName = ""
     var sometext: String
-    val attributes: MutableMap<*, *> = HashMap<Any?, Any?>()
+    val attributes:HashMap<String,Any> = HashMap<String,Any>()
     var testnum = 1.0
     var numeric = false
     try {
@@ -91,15 +84,17 @@ class NewrelicModule(reactContext: ReactApplicationContext) : ReactContextBaseJa
   fun interaction(screen: String?) {
     val now = Date()
     val elapsedtime: Long = now.getTime() - timerDate.getTime()
-    val attributes: MutableMap<*, *> = HashMap<Any?, Any?>()
-    attributes["Screen"] = screen
+    val attributes:HashMap<String,Any> = HashMap<String,Any>()
+    if (screen != null) {
+      attributes.put("Screen", screen)
+    }
     attributes["duration"] = elapsedtime
     NewRelic.recordCustomEvent("RNInteraction", attributes)
   }
 
   @ReactMethod
   fun logSend(loglevel: String?, message: String, stack: String, lineNumber: String?, fileName: String?, columnNumber: String?, name: String) {
-    val localMap: MutableMap<*, *> = HashMap<Any, Any>()
+    val localMap:HashMap<String,Any> = HashMap<String,Any>()
     if (stack.length > 0) {
       localMap["stack"] = stack
     } else {
@@ -115,7 +110,9 @@ class NewrelicModule(reactContext: ReactApplicationContext) : ReactContextBaseJa
     } else {
       localMap["message"] = "No Message"
     }
-    localMap["logLevel"] = loglevel
+    if (loglevel != null) {
+      localMap.put("logLevel", loglevel)
+    }
     localMap["platform"] = "andorid"
     NewRelic.recordCustomEvent("RNError", localMap)
   }

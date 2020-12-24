@@ -1,4 +1,5 @@
 apply plugin: "com.android.application"
+apply plugin: 'newrelic'
 
 import com.android.build.OutputFile
 
@@ -203,6 +204,8 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+
+    implementation "com.newrelic.agent.android:android-agent:5.+"
 
     implementation project(':reactnativenewrelic')
 }
