@@ -1,6 +1,5 @@
 import { NativeModules } from 'react-native';
 
-console.log(NativeModules);
 const { RNNewRelic } = NativeModules;
 
 interface NRError {
@@ -42,7 +41,6 @@ export function nrRecordMetric(inEventType: string, inJson: any) {
  * @param screen is screen name
  */
 export function nrInteraction(screen: string) {
-  console.log(screen);
   RNNewRelic.interaction(screen);
 }
 
