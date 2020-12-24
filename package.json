@@ -1,5 +1,5 @@
 {
-  "name": "react-native-newrelic",
+  "name": "@bibabovn/react-native-newrelic",
   "version": "1.3.0",
   "description": "New relic react native module",
   "main": "lib/commonjs/index",
@@ -36,7 +36,10 @@
     "ios",
     "android"
   ],
-  "repository": "https://github.com/huynqbibabo/react-native-newrelic",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/huynqbibabo/react-native-newrelic.git"
+  },
   "author": "Quang Huy <huynq@bibabo.vn> (https://github.com/huynqbibabo)",
   "license": "MIT",
   "bugs": {
@@ -149,5 +152,9 @@
         }
       ]
     ]
+  },
+  "directories": {
+    "example": "example",
+    "lib": "lib"
   }
 }
