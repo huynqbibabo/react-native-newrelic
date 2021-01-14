@@ -14,7 +14,7 @@ import {
   nrError,
   nrInteraction,
   nrCritical,
-  nrRecordMetric,
+  // nrRecordMetric,
 } from 'react-native-newrelic';
 
 export default function App() {
@@ -42,16 +42,16 @@ export default function App() {
       });
   }, []);
 
-  React.useEffect(() => {
-    // Create Custom event tables in New Relic Insights
-    const sampledata = {
-      cityName: 'Philadelphia',
-      zipCode: 19134,
-      username: 'bob',
-      alive: true,
-    };
-    nrRecordMetric('MyCustomMetric', sampledata);
-  }, []);
+  // React.useEffect(() => {
+  //   // Create Custom event tables in New Relic Insights
+  //   const sampledata = {
+  //     cityName: 'Philadelphia',
+  //     zipCode: 19134,
+  //     username: 'bob',
+  //     alive: true,
+  //   };
+  //   nrRecordMetric('MyCustomMetric', sampledata);
+  // }, []);
 
   const badApiLoad = () => {
     setLoading(true);
@@ -74,7 +74,6 @@ export default function App() {
     <SafeAreaView style={styles.container}>
       <Button title={'Bad API'} onPress={badApiLoad} color={'#3365f3'} />
       <FlatList
-        style={{ flex: 1 }}
         data={dataSource}
         renderItem={({ item }) => (
           <Text>
