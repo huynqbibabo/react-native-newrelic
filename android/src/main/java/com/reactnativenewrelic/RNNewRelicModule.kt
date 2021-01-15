@@ -7,6 +7,7 @@ import com.newrelic.agent.android.metric.MetricUnit
 import org.json.JSONException
 import org.json.JSONObject
 import java.util.*
+import kotlin.collections.HashMap
 
 
 class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
@@ -19,6 +20,9 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
     return HashMap()
   }
 
+  /**
+   * Test a native crash
+   */
   @ReactMethod
   fun crashNow(message: String?){
     NewRelic.crashNow(message);
@@ -30,10 +34,7 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
   @ReactMethod
   fun startInteraction(interactionName: String, promise: Promise) {
     try {
-
       val interactionId = NewRelic.startInteraction(interactionName)
-//    val params = Arguments.createMap()
-//    params.putString("interactionId", interactionId)
       promise.resolve(interactionId)
     } catch (e: Exception) {
       e.printStackTrace()
@@ -57,7 +58,13 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
    */
   @ReactMethod
   fun endInteraction(interactionID: String) {
-    NewRelic.endInteraction(interactionID)
+    try {
+
+      NewRelic.endInteraction(interactionID)
+    } catch (e: Exception) {
+      e.printStackTrace()
+      NewRelic.recordHandledException(e)
+    }
   }
 
   /**
@@ -67,6 +74,7 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
    * IMAGE	Image loading and processing
    * JSON	JSON parsing or creation
    * NETWORK	Web service integration methods, remote resource loading
+   * Create custom metrics
    */
   @ReactMethod
   fun recordMetric(name: String, category: String, readableMap: ReadableMap) {
@@ -83,10 +91,13 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
   }
 
+  /**
+   * Create or update an attribute
+   */
   @ReactMethod
-  fun setAttribute(name: String, readableMap: ReadableMap) {
+  fun setAttribute(name: String?, readableMap: ReadableMap?) {
     try {
-      when (readableMap.getType("value")) {
+      when (readableMap?.getType("value")) {
         ReadableType.Boolean -> NewRelic.setAttribute(name, readableMap.getBoolean("value"))
         ReadableType.Number -> NewRelic.setAttribute(name, readableMap.getDouble("value"))
         ReadableType.String -> NewRelic.setAttribute(name, readableMap.getString("value"))
@@ -98,12 +109,86 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
   }
 
+  /**
+   * This method removes the attribute specified by the name string
+   */
   @ReactMethod
-  fun setUserId(userId: String) {
+  fun removeAttribute(name: String?) {
+    try {
+      NewRelic.removeAttribute(name)
+    } catch (e: Exception) {
+      e.printStackTrace()
+      NewRelic.recordHandledException(e)
+    }
+  }
+
+  /**
+   * Set custom user ID for associating sessions with events and attributes
+   */
+  @ReactMethod
+  fun setUserId(userId: String?) {
     try {
       NewRelic.setUserId(userId)
     } catch (e: Exception) {
       e.printStackTrace();
+      NewRelic.recordHandledException(e)
+    }
+  }
+
+  /**
+   * Track app activity that may be helpful for troubleshooting crashes
+   */
+  @ReactMethod
+  fun recordBreadcrumb(name: String?, readableMap: ReadableMap?) {
+    val attributes = readableMap?.toHashMap()
+    NewRelic.recordBreadcrumb(name, attributes)
+  }
+
+  /**
+   * Creates and records a custom event, for use in New Relic Insights
+   *
+   * IMPORTANT considerations and best practices include:
+   *
+   * - You should limit the total number of event types to approximately five.
+   * eventType is meant to be used for high-level categories.
+   * For example, you might create an event type Gestures.
+   *
+   * - Do not use eventType to name your custom events.
+   * Create an attribute to name an event or use the optional name parameter.
+   * You can create many custom events; it is only event types that you should limit.
+   *
+   * - Using the optional name parameter has the same effect as adding a name key in the attributes dictionary.
+   * name is a keyword used for displaying your events in the New Relic UI.
+   * To create a useful name, you might combine several attributes.
+   */
+  @ReactMethod
+  fun recordCustomEvent(eventType: String?, eventName: String?, readableMap: ReadableMap?) {
+    try {
+      val attributes = readableMap?.toHashMap()
+      NewRelic.recordCustomEvent(eventType, eventName, attributes)
+    } catch (e: Exception) {
+      e.printStackTrace()
+      NewRelic.recordHandledException(e)
+    }
+  }
+
+  /**
+   * Record HTTP transactions at varying levels of detail
+   */
+  @ReactMethod
+  fun noticeHttpTransaction(url: String, readableMap: ReadableMap) {
+    val httpMethod = readableMap.getString("httpMethod")
+    val statusCode = readableMap.getInt("statusCode")
+    val startTime = readableMap.getDouble("startTime")
+    val endTime = readableMap.getDouble("endTime")
+    val bytesSent = readableMap.getDouble("bytesSent")
+    val bytesReceived = readableMap.getDouble("bytesReceived")
+    val responseBody = readableMap.getString("responseBody")
+
+    try {
+        NewRelic.noticeHttpTransaction(url, httpMethod, statusCode, startTime.toLong(), endTime.toLong(), bytesSent.toLong(), bytesReceived.toLong(), responseBody)
+    } catch (e: Exception) {
+      e.printStackTrace()
       NewRelic.recordHandledException(e)
     }
   }
@@ -142,14 +227,6 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
     NewRelic.recordCustomEvent("RNError", localMap)
   }
 
-  /**
-   * Track app activity that may be helpful for troubleshooting crashes
-   */
-  @ReactMethod
-  fun recordBreadcrumb(name: String?, eventInJson: String?) {
-    val attributes = parseJson(eventInJson)
-    NewRelic.recordBreadcrumb(name, attributes);
-  }
 
   private fun parseJson(inJson: String?): HashMap<String, Any> {
     val mainObject: JSONObject

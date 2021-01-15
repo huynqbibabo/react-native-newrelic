@@ -51,7 +51,7 @@ export type MetricCategory =
  */
 export function nrInit(firstScreen: string) {
   ErrorUtils.setGlobalHandler(jsExceptionHandler);
-  console.error = (_message: any, error: any) => jsExceptionHandler(error);
+  console.error = (_message: any, ...error: any[]) => jsExceptionHandler(error);
   RNNewRelic.nrInit(firstScreen);
 }
 
