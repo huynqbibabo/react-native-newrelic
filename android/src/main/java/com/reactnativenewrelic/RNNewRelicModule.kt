@@ -193,6 +193,27 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
   }
 
+  /**
+   * Record HTTP transactions at varying levels of detail
+   */
+  @ReactMethod
+  fun noticeNetworkFailure(url: String, readableMap: ReadableMap) {
+    val httpMethod = readableMap.getString("httpMethod")
+    val statusCode = readableMap.getInt("statusCode")
+    val startTime = readableMap.getDouble("startTime")
+    val endTime = readableMap.getDouble("endTime")
+    val bytesSent = readableMap.getDouble("bytesSent")
+    val bytesReceived = readableMap.getDouble("bytesReceived")
+    val responseBody = readableMap.getString("responseBody")
+
+    try {
+        NewRelic.noticeHttpTransaction(url, httpMethod, statusCode, startTime.toLong(), endTime.toLong(), bytesSent.toLong(), bytesReceived.toLong(), responseBody)
+    } catch (e: Exception) {
+      e.printStackTrace()
+      NewRelic.recordHandledException(e)
+    }
+  }
+
   @ReactMethod
   fun logSend(loglevel: String?, message: String, stack: String, lineNumber: String?, fileName: String?, columnNumber: String?, name: String) {
     val localMap: HashMap<String, Any> = HashMap()

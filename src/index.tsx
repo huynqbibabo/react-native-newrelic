@@ -1,4 +1,5 @@
 import { NativeModules } from 'react-native';
+import parseErrorStack from 'react-native/Libraries/Core/Devtools/parseErrorStack';
 
 const { RNNewRelic } = NativeModules;
 
@@ -57,6 +58,8 @@ export function nrInit(firstScreen: string) {
 
 function jsExceptionHandler(_error?: any) {
   // TODO: record error
+
+  parseErrorStack(_error);
 }
 
 /**

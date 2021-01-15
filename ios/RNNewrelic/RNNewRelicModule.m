@@ -1,10 +1,10 @@
 #import "RNNewRelicModule.h"
+#import "RCTConvert.h"
+#import "RCTExceptionsManager.h"
 
 @implementation RNNewRelic
 
 RCT_EXPORT_MODULE();
-
-
 
 /**
  * Test a native crash
@@ -100,15 +100,44 @@ RCT_EXPORT_METHOD(methodrecordCustomEvent:(NSString *)eventType eventName:()even
     [NewRelic recordCustomEvent:(NSString * _Nonnull)eventType name:(NSString * _Nullable)eventName attributes:(NSDictionary * _Nullable)attrs];
 }
 
-RCT_EXPORT_METHOD(noticeHttpTransaction:(NSString *)url attrs:(NSDictionary *)attrs) {
-    NSString *method = attrs[@"httpMethod"];
-    NSNumber *startTime = attrs[@"startTime"];
-    NSNumber *endTime = attrs[@"startTime"];
+/**
+ * Record HTTP transactions at varying levels of detail
+ */
+RCT_EXPORT_METHOD(noticeNetworkRequest:(NSString *)url dict:(NSDictionary *)dict) {
+    NSURL *method = [RCTConvert NSURL:dict[@"method"]];
+//    NSNumber *startTime = [RCTConvert NSNumber:dict[@"startTime"]];
+//    NSNumber *endTime = [RCTConvert NSNumber:dict[@"endTime"]];
+    NSDictionary *headers = [RCTConvert NSDictionary:dict[@"headers"]];
+    NSInteger statusCode = [RCTConvert NSInteger:dict[@"statusCode"]];
+    NSUInteger bytesSent = [RCTConvert NSUInteger:dict[@"bytesSent"]];
+    NSUInteger bytesReceived = [RCTConvert NSUInteger:dict[@"bytesReceived"]];
+    NSData *response = [RCTConvert NSData:dict[@"response"]];
+    NSDictionary *params = [RCTConvert NSDictionary:dict[@"params"]];
     
-    NRTimer *timer = [timer startTimeMillis:(double)startTime];
+    NRTimer *timer = [NRTimer new];
     
-    [NewRelic noticeNetworkRequestForURL:(NSURL * _Null_unspecified)url httpMethod:(NSString * _Null_unspecified)method withTimer:(NRTimer * _Null_unspecified)timer responseHeaders:<#(NSDictionary * _Null_unspecified)#> statusCode:<#(NSInteger)#> bytesSent:<#(NSUInteger)#> bytesReceived:<#(NSUInteger)#> responseData:<#(NSData * _Null_unspecified)#> andParams:<#(NSDictionary * _Nullable)#>];
+    [NewRelic noticeNetworkRequestForURL:(NSURL * _Null_unspecified)url httpMethod:(NSString * _Null_unspecified)method withTimer:(NRTimer * _Null_unspecified)timer responseHeaders:(NSDictionary * _Null_unspecified)headers statusCode:(NSInteger)statusCode bytesSent:(NSUInteger)bytesSent bytesReceived:(NSUInteger)bytesReceived responseData:(NSData * _Null_unspecified)response andParams:(NSDictionary * _Nullable)params];
 }
+
+/*
+ * Record network failures
+ */
+RCT_EXPORT_METHOD(noticeNetworkFailure:(NSString *)url method:(NSString *)method errorCode:(NSInteger)errorCode) {
+    NRTimer *timer = [NRTimer new];
+    [NewRelic noticeNetworkFailureForURL:(NSURL * _Null_unspecified)url httpMethod:(NSString * _Null_unspecified)method withTimer:(NRTimer * _Null_unspecified)timer andFailureCode:(NSInteger)errorCode];
+}
+
+/**
+ * Records a handled exception. Optionally takes map with additional attributes showing context.
+ */
+RCT_EXPORT_METHOD(recordHandledException:(NSDictionary *)params) {
+    
+//    NSException e = [RCTConvert NSException:params[@"exception"]];
+//    NSException exception = [NSException ];
+//    NSDictionary *attributes = [RCTConvert NSDictionary:params[@"attributes"]];
+//    [NewRelic recordHandledException:(NSException * _Nonnull)exception withAttributes:(NSDictionary * _Nullable)attributes];
+}
+
 
 RCT_EXPORT_METHOD(logSend:(NSString *)loglevel message:(NSString *)message stack:(NSString *)stack lineNumber:(NSString *)lineNumber fileName:(NSString *)fileName columnNumber:(NSString *)columnNumber name:(NSString *)name)
 {
