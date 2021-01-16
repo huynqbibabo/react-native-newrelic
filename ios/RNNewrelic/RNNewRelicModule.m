@@ -50,10 +50,10 @@ RCT_EXPORT_METHOD(endInteraction:(NSString *)interactionId) {
 RCT_EXPORT_METHOD(recordMetric:(NSString *)name category:(NSString *)category attrs:(NSDictionary *)attrs)
 {
     NSNumber *value = attrs[@"totalValue"];
-    NRMetricUnit *valueUnits = attrs[@"valueUnit"];
-    NRMetricUnit *countUnits = attrs[@"countUnit"];
+    NRMetricUnit *vUnits = attrs[@"valueUnit"];
+    NRMetricUnit *cUnits = attrs[@"countUnit"];
 
-    [NewRelic recordMetricWithName:(NSString * _Nonnull)name category:(NSString * _Nonnull)category value:(NSNumber * _Nonnull)value valueUnits:(NRMetricUnit * _Nullable)valueUnits countUnits:(NRMetricUnit * _Nullable)countUnits];
+    [NewRelic recordMetricWithName:(NSString * _Nonnull)name category:(NSString * _Nonnull)category value:(NSNumber * _Nonnull)value valueUnits:(NRMetricUnit * _Nullable)vUnits countUnits:(NRMetricUnit * _Nullable)cUnits];
 }
 
 /**
@@ -136,47 +136,6 @@ RCT_EXPORT_METHOD(recordHandledException:(NSDictionary *)params) {
 //    NSException exception = [NSException ];
 //    NSDictionary *attributes = [RCTConvert NSDictionary:params[@"attributes"]];
 //    [NewRelic recordHandledException:(NSException * _Nonnull)exception withAttributes:(NSDictionary * _Nullable)attributes];
-}
-
-
-RCT_EXPORT_METHOD(logSend:(NSString *)loglevel message:(NSString *)message stack:(NSString *)stack lineNumber:(NSString *)lineNumber fileName:(NSString *)fileName columnNumber:(NSString *)columnNumber name:(NSString *)name)
-{
-  if (loglevel == nil) {
-    loglevel = @"missing";
-  }
-
-  if (message == nil) {
-    message = @"missing";
-  }
-
-  if (stack == nil) {
-    stack = @"missing";
-  }
-
-  if (lineNumber == nil) {
-    lineNumber = @"missing";
-  }
-
-  if (fileName == nil) {
-    fileName = @"missing";
-  }
-
-  if (columnNumber == nil) {
-    columnNumber = @"missing";
-  }
-
-  if (loglevel == nil) {
-    name = @"missing";
-  }
-
-  id objects[] = {loglevel, message, stack, lineNumber,fileName, columnNumber, name, @"ios"};
-  id keys[] = {@"logLevel", @"message", @"stack", @"lineNumber", @"fileName", @"columnNumber", @"name", @"platform"};
-  NSUInteger count = sizeof(objects) / sizeof(id);
-  NSDictionary *nrdictionary = [NSDictionary dictionaryWithObjects:objects
-                                                         forKeys:keys
-                                                           count:count];
-
-   [NewRelic recordCustomEvent:@"RNError" attributes:nrdictionary];
 }
 
 @end

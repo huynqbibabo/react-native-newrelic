@@ -46,41 +46,69 @@ export type MetricCategory =
   | Category.JSON
   | Category.NETWORK;
 
+export type InteractionId = string;
+
 /**
  * Call this to initialize the SDK. Pass a name of the app's landing screen as an argument.
- * @param firstScreen
  */
-export function nrInit(firstScreen: string) {
+export function nrInit(overrideConsole?: boolean) {
   ErrorUtils.setGlobalHandler(jsExceptionHandler);
-  console.error = (_message: any, ...error: any[]) => jsExceptionHandler(error);
-  RNNewRelic.nrInit(firstScreen);
+  if (overrideConsole) {
+    console.error = (_message: any, ...error: any[]) =>
+      jsExceptionHandler(error);
+  }
 }
 
 function jsExceptionHandler(_error?: any) {
   // TODO: record error
 
-  parseErrorStack(_error);
+  const stacks = parseErrorStack(_error);
+  console.log(stacks);
 }
 
 /**
  * Call this to associate a user with custom events
- * @param userId
+ * @param message
  */
-export function nrAddUserId(userId: string) {
-  RNNewRelic.addUserId(userId);
+export function crashNow(message?: string) {
+  RNNewRelic.crashNow(message);
 }
 
 /**
- * With this method, you can record arbitrary custom metrics to give more detail about app activity
- * that is not tracked by New Relic automatically.
- * The call accepts several sets of parameters for optional levels of detail.
- * To get the most out of your metrics, follow these guidelines to create clear, concise metric names:
- *  - Use case and whitespace characters appropriate for display in the user interface. Metric names are rendered as-is.
- *  - Capitalize the metric name.
- *  - Avoid using the characters / ] [ | * when naming metrics.
- *  - Avoid multi-byte characters.
- *  The category is also required; it is displayed in the UI and is useful for organizing custom metrics if you have many of them.
- *  It can be a custom category or it can be a predefined category using the MetricCategory enum.
+ * Track a method as an interaction
+ */
+export async function startInteraction(
+  interactionName: string
+): Promise<InteractionId> {
+  return await RNNewRelic.startInteraction(interactionName);
+}
+
+/**
+ * ANDROID ONLY
+ * Name or rename an interaction
+ */
+export function setInteractionName(interactionName: string) {
+  RNNewRelic.setInteractionName(interactionName);
+}
+
+/**
+ * End an interaction
+ * Required. The string ID for the interaction you want to end.
+ * This string is returned when you use startInteraction().
+ */
+export function endInteraction(id: InteractionId) {
+  RNNewRelic.endInteraction(id);
+}
+
+/**
+ * Metrics Categories:
+ *  VIEW_LOADING	Creating sub views, controls, and other related tasks
+ *  VIEW_LAYOUT	Inflation of layouts, resolving components
+ *  DATABASE	SQLite and other file I/O
+ *  IMAGE	Image loading and processing
+ *  JSON	JSON parsing or creation
+ *  NETWORK	Web service integration methods, remote resource loading
+ * Create custom metrics
  */
 export function nrRecordMetric(
   name: string,
@@ -102,8 +130,6 @@ export function nrRecordMetric(
       count: 1,
       totalValue: 1.0,
       exclusiveValue: 0,
-      // countUnit: null,
-      // valueUnit: null,
     },
     args
   );
@@ -114,73 +140,83 @@ export function nrRecordMetric(
 }
 
 /**
- * Call this to record an interaction event.
- * @param screen is screen name
+ * Create or update an attribute
  */
-export function nrInteraction(screen: string) {
-  RNNewRelic.interaction(screen);
+export function setAttribute(name: string, value: boolean | number | string) {
+  RNNewRelic.setAttribute(name, { value });
 }
 
 /**
- * Call this to record a custom error event.
- * @param inError is JavaScript exception
+ * This method removes the attribute specified by the name string
  */
-export function nrLog(inError: NRError) {
-  RNNewRelic.logSend(
-    'log',
-    inError.message,
-    inError.stack,
-    inError.lineNumber,
-    inError.fileName,
-    inError.columnNumber,
-    inError.name
-  );
+export function removeAttribute(name: string) {
+  RNNewRelic.removeAttribute(name);
 }
 
 /**
- * Call this to record a custom error event at error level
- * @param inError is JavaScript exception
+ * Set custom user ID for associating sessions with events and attributes
  */
-export function nrError(inError: NRError) {
-  RNNewRelic.logSend(
-    'error',
-    inError.message,
-    inError.stack,
-    inError.lineNumber,
-    inError.fileName,
-    inError.columnNumber,
-    inError.name
-  );
+export function setUserId(userId: string) {
+  RNNewRelic.setUserId(userId);
 }
 
 /**
- * Call this to record a custom error event at warning level
- * @param inError is JavaScript exception
+ * Track app activity/screen that may be helpful for troubleshooting crashes
  */
-export function nrWarning(inError: NRError) {
-  RNNewRelic.logSend(
-    'warning',
-    inError.message,
-    inError.stack,
-    inError.lineNumber,
-    inError.fileName,
-    inError.columnNumber,
-    inError.name
-  );
+export function recordBreadcrumb(
+  name: string,
+  attributes?: { [key: string]: boolean | number | string }
+) {
+  RNNewRelic.recordBreadcrumb(name, attributes);
 }
 
 /**
- * Call this to record a custom error event at critical level
- * @param inError is JavaScript exception
+ * Creates and records a custom event, for use in New Relic Insights
+ *
+ * IMPORTANT considerations and best practices include:
+ *
+ * - You should limit the total number of event types to approximately five.
+ * eventType is meant to be used for high-level categories.
+ * For example, you might create an event type Gestures.
+ *
+ * - Do not use eventType to name your custom events.
+ * Create an attribute to name an event or use the optional name parameter.
+ * You can create many custom events; it is only event types that you should limit.
+ *
+ * - Using the optional name parameter has the same effect as adding a name key in the attributes dictionary.
+ * name is a keyword used for displaying your events in the New Relic UI.
+ * To create a useful name, you might combine several attributes.
  */
-export function nrCritical(inError: NRError) {
-  RNNewRelic.logSend(
-    'critical',
-    inError.message,
-    inError.stack,
-    inError.lineNumber,
-    inError.fileName,
-    inError.columnNumber,
-    inError.name
-  );
+export function recordCustomEvent(
+  eventType: string,
+  eventName?: string,
+  attributes?: { [key: string]: boolean | number | string }
+) {
+  RNNewRelic.recordCustomEvent(eventName, eventType, attributes);
+}
+
+/**
+ * Record HTTP transactions at varying levels of detail
+ */
+export function noticeNetworkRequest(
+  url: string,
+  options: {
+    httpMethod:
+      | 'GET'
+      | 'POST'
+      | 'PUT'
+      | 'HEAD'
+      | 'DELETE'
+      | 'PATCH'
+      | 'OPTIONS';
+    statusCode: number;
+    startTime: number; // in milliseconds
+    endTime: number; // in milliseconds
+    bytesSent: number;
+    bytesReceived: number;
+    responseHeader: {};
+    responseBody: string;
+  }
+) {
+  RNNewRelic.noticeNetworkRequest(url, options);
 }
