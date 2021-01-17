@@ -5,4 +5,5 @@
 
 @interface RNNewRelic : NSObject <RCTBridgeModule>
 
+- (void)reportJSException:(NSError *)error;
 @end

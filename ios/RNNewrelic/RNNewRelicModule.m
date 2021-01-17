@@ -75,8 +75,15 @@ RCT_EXPORT_METHOD(removeAttribute:(NSString *)name) {
 /**
  * Set custom user ID for associating sessions with events and attributes
  */
-RCT_EXPORT_METHOD(addUserId:(NSString *)userId){
+RCT_EXPORT_METHOD(setUserId:(NSString *)userId){
   [NewRelic setUserId:(NSString * _Null_unspecified)userId];
+}
+
+/**
+ * Track app activity that may be helpful for troubleshooting crashes
+ */
+RCT_EXPORT_METHOD(recordBreadcrumb:(NSString *)name attributes:(NSDictionary *)attributes){
+    [NewRelic recordBreadcrumb:(NSString * _Nonnull)name attributes:(NSDictionary * _Nullable)attributes];
 }
 
 /**
@@ -104,38 +111,52 @@ RCT_EXPORT_METHOD(methodrecordCustomEvent:(NSString *)eventType eventName:()even
  * Record HTTP transactions at varying levels of detail
  */
 RCT_EXPORT_METHOD(noticeNetworkRequest:(NSString *)url dict:(NSDictionary *)dict) {
-    NSURL *method = [RCTConvert NSURL:dict[@"method"]];
+    NSURL *requestUrl = [RCTConvert NSURL:url];
+    NSString *method = [RCTConvert NSString:dict[@"httpMethod"]];
 //    NSNumber *startTime = [RCTConvert NSNumber:dict[@"startTime"]];
 //    NSNumber *endTime = [RCTConvert NSNumber:dict[@"endTime"]];
-    NSDictionary *headers = [RCTConvert NSDictionary:dict[@"headers"]];
+    NSDictionary *headers = [RCTConvert NSDictionary:dict[@"responseHeader"]];
     NSInteger statusCode = [RCTConvert NSInteger:dict[@"statusCode"]];
     NSUInteger bytesSent = [RCTConvert NSUInteger:dict[@"bytesSent"]];
     NSUInteger bytesReceived = [RCTConvert NSUInteger:dict[@"bytesReceived"]];
-    NSData *response = [RCTConvert NSData:dict[@"response"]];
     NSDictionary *params = [RCTConvert NSDictionary:dict[@"params"]];
+    
+    NSData *jsonBody = [dict[@"responseBody"] dataUsingEncoding:NSUTF8StringEncoding];
+//    NSError *error;
+//    id jsonObject = [NSJSONSerialization JSONObjectWithData:jsonBody options:0 error:&error];
     
     NRTimer *timer = [NRTimer new];
     
-    [NewRelic noticeNetworkRequestForURL:(NSURL * _Null_unspecified)url httpMethod:(NSString * _Null_unspecified)method withTimer:(NRTimer * _Null_unspecified)timer responseHeaders:(NSDictionary * _Null_unspecified)headers statusCode:(NSInteger)statusCode bytesSent:(NSUInteger)bytesSent bytesReceived:(NSUInteger)bytesReceived responseData:(NSData * _Null_unspecified)response andParams:(NSDictionary * _Nullable)params];
+    [NewRelic noticeNetworkRequestForURL:(NSURL * _Null_unspecified)requestUrl httpMethod:(NSString * _Null_unspecified)method withTimer:(NRTimer * _Null_unspecified)timer responseHeaders:(NSDictionary * _Null_unspecified)headers statusCode:(NSInteger)statusCode bytesSent:(NSUInteger)bytesSent bytesReceived:(NSUInteger)bytesReceived responseData:(NSData * _Null_unspecified)jsonBody andParams:(NSDictionary * _Nullable)params];
 }
 
 /*
  * Record network failures
  */
-RCT_EXPORT_METHOD(noticeNetworkFailure:(NSString *)url method:(NSString *)method errorCode:(NSInteger)errorCode) {
+RCT_EXPORT_METHOD(noticeNetworkFailure:(NSString *)url dict:(NSDictionary *)dict) {
+    NSURL *requestUrl = [RCTConvert NSURL:url];
+    NSString *method = [RCTConvert NSString:dict[@"httpMethod"]];
+    NSInteger statusCode = [RCTConvert NSInteger:dict[@"statusCode"]];
     NRTimer *timer = [NRTimer new];
-    [NewRelic noticeNetworkFailureForURL:(NSURL * _Null_unspecified)url httpMethod:(NSString * _Null_unspecified)method withTimer:(NRTimer * _Null_unspecified)timer andFailureCode:(NSInteger)errorCode];
+    [NewRelic noticeNetworkFailureForURL:(NSURL * _Null_unspecified)requestUrl httpMethod:(NSString * _Null_unspecified)method withTimer:(NRTimer * _Null_unspecified)timer andFailureCode:(NSInteger)statusCode];
 }
 
-/**
- * Records a handled exception. Optionally takes map with additional attributes showing context.
- */
-RCT_EXPORT_METHOD(recordHandledException:(NSDictionary *)params) {
+
+RCT_EXPORT_METHOD(reportJSException:(NSDictionary *)error) {
     
-//    NSException e = [RCTConvert NSException:params[@"exception"]];
-//    NSException exception = [NSException ];
-//    NSDictionary *attributes = [RCTConvert NSDictionary:params[@"attributes"]];
-//    [NewRelic recordHandledException:(NSException * _Nonnull)exception withAttributes:(NSDictionary * _Nullable)attributes];
+    NSArray<NSDictionary<NSString *, id> *> *stackTrace = [RCTConvert NSArray:error[@"stack"]];
+    NSString *localizedDescription = error[@"name"];
+    NSString *name = [NSString stringWithFormat:@"%@: %@", RCTFatalExceptionName, localizedDescription];
+
+    // Truncate the localized description to 175 characters to avoid wild screen overflows
+    NSString *message = RCTFormatError(localizedDescription, stackTrace, 64);
+
+    // Attach an untruncated copy of the description to the userInfo, in case it is needed
+    NSMutableDictionary *userInfo = [stackTrace mutableCopy];
+    [userInfo setObject:RCTFormatError(localizedDescription, stackTrace, -1)
+                 forKey:@"RCTUntruncatedMessageKey"];
+    
+    [NewRelic recordHandledException:(NSException * _Nonnull)[[NSException alloc] initWithName:name reason:message userInfo:userInfo]];
 }
 
 @end

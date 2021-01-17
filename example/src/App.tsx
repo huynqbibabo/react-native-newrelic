@@ -2,89 +2,124 @@ import * as React from 'react';
 
 import {
   StyleSheet,
-  // View,
-  // Text,
-  // FlatList,
-  // Button,
+  View,
+  Text,
+  FlatList,
+  Button,
   SafeAreaView,
 } from 'react-native';
-// import {
-//   nrInit,
-//   // nrAddUserId,
-//   // nrError,
-//   // nrInteraction,
-//   // nrCritical,
-//   // nrRecordMetric,
-// } from 'react-native-newrelic';
+import {
+  crashNow,
+  endInteraction,
+  noticeNetworkFailure,
+  // noticeNetworkFailure,
+  noticeNetworkRequest,
+  nrInit,
+  // nrRecordMetric,
+  recordBreadcrumb,
+  // recordCustomEvent,
+  // removeAttribute,
+  setAttribute,
+  // setInteractionName,
+  setUserId,
+  startInteraction,
+} from 'react-native-newrelic';
 
 export default function App() {
-  // const [dataSource, setResult] = React.useState<any>([]);
-  // const [isLoading, setLoading] = React.useState<boolean>(true);
+  const [dataSource, setResult] = React.useState<any>([]);
+  const [isLoading, setLoading] = React.useState<boolean>(true);
 
-  // React.useEffect(() => {
-  //   nrInit('Test-Screen');
-  //   nrAddUserId('TestUser');
-  //   nrInteraction('TestScreen');
-  // }, []);
+  React.useEffect(() => {
+    nrInit(true);
+    recordBreadcrumb('User open first screen', { stack: 'feed-stack' });
+    setUserId('test-id');
+  }, []);
   //
-  // React.useEffect(() => {
-  //   fetch('https://facebook.github.io/react-native/movies.json')
-  //     .then((response) => response.json())
-  //     .then((responseJson) => {
-  //       console.log(responseJson);
-  //       setLoading(false);
-  //       setResult(responseJson.movies);
-  //     })
-  //     .catch((error) => {
-  //       // logging function can be added here as well
-  //       console.error(error);
-  //       nrError(error);
-  //     });
-  // }, []);
+  React.useEffect(() => {
+    const url = 'https://reactnative.dev/movies.json';
+    const startTime = new Date().getTime();
+    fetch(url)
+      .then((response) => response.json())
+      .then((response) => {
+        const endTime = new Date().getTime();
+        noticeNetworkRequest(url, {
+          httpMethod: 'GET',
+          startTime,
+          endTime,
+          responseBody: JSON.stringify(response),
+          statusCode: response.status,
+          responseHeader: response.headers,
+        });
+        console.log(response);
+        setLoading(false);
+        setResult(response.movies);
+      })
+      .catch((error) => {
+        // logging function can be added here as well
+        console.error(error);
+      });
+  }, []);
   //
-  // // React.useEffect(() => {
-  // //   // Create Custom event tables in New Relic Insights
-  // //   const sampledata = {
-  // //     cityName: 'Philadelphia',
-  // //     zipCode: 19134,
-  // //     username: 'bob',
-  // //     alive: true,
-  // //   };
-  // //   nrRecordMetric('MyCustomMetric', sampledata);
-  // // }, []);
+  React.useEffect(() => {
+    // Create Custom event tables in New Relic Insights
+    setAttribute('name', 'User name');
+    setAttribute('isActive', true);
+    setAttribute('age', 23);
+  }, []);
   //
-  // const badApiLoad = () => {
-  //   setLoading(true);
-  //   fetch('https://facebook.github.io/react-native/moviessssssssss.json')
-  //     .then((response) => response.json())
-  //     .then((responseJson) => {
-  //       console.log(responseJson);
-  //       setLoading(false);
-  //       setResult(responseJson.movies);
-  //     })
-  //     .catch((error) => {
-  //       setLoading(false);
-  //       console.error(error);
-  //       // logging function can be added here as well
-  //       nrCritical(error);
-  //     });
-  // };
+  const badApiLoad = async () => {
+    setLoading(true);
+    const interactionId = await startInteraction('StartLoadBadApiCall');
+    const url = 'https://facebook.github.io/react-native/moviessssssssss.json';
+    fetch(url)
+      .then((response) => response.json())
+      .then((responseJson) => {
+        console.log(responseJson);
+        setLoading(false);
+        endInteraction(interactionId);
+        setResult(responseJson.movies);
+      })
+      .catch((error) => {
+        noticeNetworkFailure(url, { httpMethod: 'GET', statusCode: 0 });
+        setLoading(false);
+        endInteraction(interactionId);
+        console.error(error);
+      });
+  };
+
+  const testNativeCrash = () => {
+    crashNow('Test crash message');
+  };
+
+  const jsErrorHandle = () => {
+    throw new Error();
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      {/*<Button title={'Bad API'} onPress={badApiLoad} color={'#3365f3'} />*/}
-      {/*<FlatList*/}
-      {/*  data={dataSource}*/}
-      {/*  renderItem={({ item }) => (*/}
-      {/*    <Text>*/}
-      {/*      {item.title}, {item.releaseYear}*/}
-      {/*    </Text>*/}
-      {/*  )}*/}
-      {/*  keyExtractor={({ id }) => id}*/}
-      {/*  ListEmptyComponent={*/}
-      {/*    <View>{isLoading ? <Text>Loading...</Text> : null}</View>*/}
-      {/*  }*/}
-      {/*/>*/}
+      <Button title={'Bad API'} onPress={badApiLoad} color={'#3365f3'} />
+      <Button
+        title={'Test JS error handle'}
+        onPress={jsErrorHandle}
+        color={'#3365f3'}
+      />
+      <Button
+        title={'Test native crash'}
+        onPress={testNativeCrash}
+        color={'#3365f3'}
+      />
+      <FlatList
+        data={dataSource}
+        renderItem={({ item }) => (
+          <Text>
+            {item.title}, {item.releaseYear}
+          </Text>
+        )}
+        keyExtractor={({ id }) => id}
+        ListEmptyComponent={
+          <View>{isLoading ? <Text>Loading...</Text> : null}</View>
+        }
+      />
     </SafeAreaView>
   );
 }

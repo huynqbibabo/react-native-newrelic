@@ -1,5 +1,4 @@
 import { NativeModules } from 'react-native';
-import parseErrorStack from 'react-native/Libraries/Core/Devtools/parseErrorStack';
 
 const { RNNewRelic } = NativeModules;
 
@@ -54,16 +53,15 @@ export type InteractionId = string;
 export function nrInit(overrideConsole?: boolean) {
   ErrorUtils.setGlobalHandler(jsExceptionHandler);
   if (overrideConsole) {
-    console.error = (_message: any, ...error: any[]) =>
-      jsExceptionHandler(error);
+    console.error = (message: any, ...error: any[]) =>
+      jsExceptionHandler(error, message);
   }
 }
 
-function jsExceptionHandler(_error?: any) {
+function jsExceptionHandler(error?: any, ...optionalParams: any) {
   // TODO: record error
-
-  const stacks = parseErrorStack(_error);
-  console.log(stacks);
+  console.log(optionalParams);
+  RNNewRelic.reportJSException(error);
 }
 
 /**
@@ -210,13 +208,70 @@ export function noticeNetworkRequest(
       | 'PATCH'
       | 'OPTIONS';
     statusCode: number;
-    startTime: number; // in milliseconds
-    endTime: number; // in milliseconds
-    bytesSent: number;
-    bytesReceived: number;
-    responseHeader: {};
-    responseBody: string;
+    startTime?: number; // in milliseconds
+    endTime?: number; // in milliseconds
+    bytesSent?: number;
+    bytesReceived?: number;
+    responseHeader?: any;
+    responseBody?: string; // json string
+    params?: { [key: string]: any };
   }
 ) {
-  RNNewRelic.noticeNetworkRequest(url, options);
+  const attributes = Object.assign(
+    {
+      httpMethod: 'GET',
+      statusCode: 0,
+      startTime: 0, // in milliseconds
+      endTime: 0, // in milliseconds
+      bytesSent: 0,
+      bytesReceived: 0,
+      responseHeader: {},
+      responseBody: '',
+      params: {},
+    },
+    options
+  );
+
+  RNNewRelic.noticeNetworkRequest(url, attributes);
+}
+
+/**
+ * Record HTTP transactions at varying levels of detail
+ */
+export function noticeNetworkFailure(
+  url: string,
+  options: {
+    httpMethod:
+      | 'GET'
+      | 'POST'
+      | 'PUT'
+      | 'HEAD'
+      | 'DELETE'
+      | 'PATCH'
+      | 'OPTIONS';
+    statusCode: number;
+    startTime?: number; // in milliseconds
+    endTime?: number; // in milliseconds
+    bytesSent?: number;
+    bytesReceived?: number;
+    responseHeader?: { [key: string]: boolean | number | string };
+    responseBody?: string;
+    params?: { [key: string]: any };
+  }
+) {
+  const attributes = Object.assign(
+    {
+      httpMethod: 'GET',
+      statusCode: 0,
+      startTime: 0, // in milliseconds
+      endTime: 0, // in milliseconds
+      bytesSent: 0,
+      bytesReceived: 0,
+      responseHeader: {},
+      responseBody: '',
+      params: {},
+    },
+    options
+  );
+  RNNewRelic.noticeNetworkFailure(url, attributes);
 }
