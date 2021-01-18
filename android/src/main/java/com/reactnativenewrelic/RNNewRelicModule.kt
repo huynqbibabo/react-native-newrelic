@@ -4,6 +4,7 @@ import android.util.Log
 import com.facebook.react.bridge.*
 import com.newrelic.agent.android.NewRelic
 import com.newrelic.agent.android.metric.MetricUnit
+import java.util.jar.Attributes
 
 
 class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
@@ -208,6 +209,13 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
       e.printStackTrace()
       NewRelic.recordHandledException(e)
     }
+  }
+
+  @ReactMethod
+  fun reportJSException(error: ReadableMap, attributes: ReadableMap) {
+
+    val jsError = Exception(error.getString("name"), Throwable(error.getMap("stack")))
+    NewRelic.recordHandledException()
   }
 
   companion object {

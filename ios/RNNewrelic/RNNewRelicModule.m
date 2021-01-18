@@ -141,7 +141,9 @@ RCT_EXPORT_METHOD(noticeNetworkFailure:(NSString *)url dict:(NSDictionary *)dict
     [NewRelic noticeNetworkFailureForURL:(NSURL * _Null_unspecified)requestUrl httpMethod:(NSString * _Null_unspecified)method withTimer:(NRTimer * _Null_unspecified)timer andFailureCode:(NSInteger)statusCode];
 }
 
-
+/**
+ * Record js exception
+ */
 RCT_EXPORT_METHOD(reportJSException:(NSDictionary *)error) {
     
     NSArray<NSDictionary<NSString *, id> *> *stackTrace = [RCTConvert NSArray:error[@"stack"]];

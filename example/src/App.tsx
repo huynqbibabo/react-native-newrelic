@@ -11,7 +11,6 @@ import {
 import {
   crashNow,
   endInteraction,
-  noticeNetworkFailure,
   // noticeNetworkFailure,
   noticeNetworkRequest,
   nrInit,
@@ -80,7 +79,7 @@ export default function App() {
         setResult(responseJson.movies);
       })
       .catch((error) => {
-        noticeNetworkFailure(url, { httpMethod: 'GET', statusCode: 0 });
+        // noticeNetworkFailure(url, { httpMethod: 'GET', statusCode: 0 });
         setLoading(false);
         endInteraction(interactionId);
         console.error(error);

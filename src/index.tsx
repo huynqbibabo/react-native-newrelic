@@ -51,17 +51,19 @@ export type InteractionId = string;
  * Call this to initialize the SDK. Pass a name of the app's landing screen as an argument.
  */
 export function nrInit(overrideConsole?: boolean) {
-  ErrorUtils.setGlobalHandler(jsExceptionHandler);
-  if (overrideConsole) {
+  ErrorUtils.setGlobalHandler((error, _isFatal) =>
+    reportJSExceptionHandler(error)
+  );
+  if (overrideConsole || !__DEV__) {
     console.error = (message: any, ...error: any[]) =>
-      jsExceptionHandler(error, message);
+      reportJSExceptionHandler(error, message);
   }
 }
 
-function jsExceptionHandler(error?: any, ...optionalParams: any) {
+export function reportJSExceptionHandler(error?: any, message?: any) {
   // TODO: record error
-  console.log(optionalParams);
-  RNNewRelic.reportJSException(error);
+  console.log(message, error);
+  RNNewRelic.reportJSException(Object.assign({ message }, error));
 }
 
 /**

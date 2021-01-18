@@ -42,6 +42,9 @@
 //  #endif
 
   [NewRelic enableFeatures:NRFeatureFlag_SwiftInteractionTracing];
+  
+//  [NewRelic startWithApplicationToken:@"yourApplicationToken"];
+  [NewRelic startWithApplicationToken:@"AAbfed7b1bd0b77fb86c1375dab3beb84df2a8ccd9-NRMA"];
 
   [NewRelic startWithApplicationToken:@"AAbfed7b1bd0b77fb86c1375dab3beb84df2a8ccd9-NRMA"];
 
