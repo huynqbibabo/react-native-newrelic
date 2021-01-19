@@ -134,6 +134,10 @@ export type Attribute =
   | NRAttributes.upgradeFrom
   | NRAttributes.uuid;
 
+export interface EventAttributes {
+  [key: string]: boolean | number | string;
+}
+
 /**
  * Call this to initialize the SDK. Pass a name of the app's landing screen as an argument.
  */
@@ -278,9 +282,7 @@ export function setAttribute(
 /**
  * Create or update multiple attributes
  */
-export function setAttributes(attributes: {
-  [key: string]: boolean | number | string;
-}) {
+export function setAttributes(attributes: EventAttributes) {
   RNNewRelic.setAttributes(attributes);
 }
 
@@ -301,10 +303,7 @@ export function setUserId(userId: string) {
 /**
  * Track app activity/screen that may be helpful for troubleshooting crashes
  */
-export function recordBreadcrumb(
-  name: string,
-  attributes?: { [key: string]: boolean | number | string }
-) {
+export function recordBreadcrumb(name: string, attributes?: EventAttributes) {
   RNNewRelic.recordBreadcrumb(name, attributes);
 }
 
@@ -328,7 +327,7 @@ export function recordBreadcrumb(
 export function recordCustomEvent(
   eventType: string,
   eventName?: string,
-  attributes?: { [key: string]: boolean | number | string }
+  attributes?: EventAttributes
 ) {
   RNNewRelic.recordCustomEvent(eventName, eventType, attributes);
 }
