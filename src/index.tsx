@@ -222,6 +222,15 @@ export function setAttribute(name: string, value: boolean | number | string) {
 }
 
 /**
+ * Create or update multiple attributes
+ */
+export function setAttributes(attributes: {
+  [key: string]: boolean | number | string;
+}) {
+  RNNewRelic.setAttributes(attributes);
+}
+
+/**
  * This method removes the attribute specified by the name string
  */
 export function removeAttribute(name: string) {

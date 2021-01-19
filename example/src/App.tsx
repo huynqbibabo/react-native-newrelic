@@ -19,6 +19,7 @@ import {
   // recordCustomEvent,
   // removeAttribute,
   setAttribute,
+  setAttributes,
   // setInteractionName,
   setUserId,
   startInteraction,
@@ -62,8 +63,7 @@ export default function App() {
   React.useEffect(() => {
     // Create Custom event tables in New Relic Insights
     setAttribute('name', 'User name');
-    setAttribute('isActive', true);
-    setAttribute('age', 23);
+    setAttributes({ isActive: true, age: 21, role: 'admin' });
   }, []);
   //
   const badApiLoad = async () => {

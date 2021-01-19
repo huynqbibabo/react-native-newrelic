@@ -4,8 +4,6 @@ import android.util.Log
 import com.facebook.react.bridge.*
 import com.newrelic.agent.android.NewRelic
 import com.newrelic.agent.android.metric.MetricUnit
-import java.util.*
-import kotlin.collections.HashMap
 
 
 class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
@@ -22,7 +20,7 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
    * Test a native crash
    */
   @ReactMethod
-  fun crashNow(message: String?){
+  fun crashNow(message: String?) {
     NewRelic.crashNow(message);
   }
 
@@ -76,12 +74,12 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
    */
   @ReactMethod
   fun recordMetric(name: String, category: String, readableMap: ReadableMap) {
-      val count = readableMap.getInt("count")
-      val totalValue = readableMap.getDouble("totalValue")
-      val exclusiveValue = readableMap.getDouble("exclusiveValue")
-      val countUnit = readableMap.getString("countUnit")
-      val valueUnit = readableMap.getString("valueUnit")
-      NewRelic.recordMetric(name, category, count, totalValue, exclusiveValue, countUnit as MetricUnit, valueUnit as MetricUnit?)
+    val count = readableMap.getInt("count")
+    val totalValue = readableMap.getDouble("totalValue")
+    val exclusiveValue = readableMap.getDouble("exclusiveValue")
+    val countUnit = readableMap.getString("countUnit")
+    val valueUnit = readableMap.getString("valueUnit")
+    NewRelic.recordMetric(name, category, count, totalValue, exclusiveValue, countUnit as MetricUnit, valueUnit as MetricUnit?)
   }
 
   /**
@@ -101,6 +99,26 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
       NewRelic.recordHandledException(e)
     }
   }
+
+
+  /**
+   * Create or update multiple attributes
+   */
+  @ReactMethod
+  fun setAttributes(attributes: ReadableMap) {
+    attributes.toHashMap().forEach { (k, _) ->
+      if (attributes.getType(k) == ReadableType.Boolean) {
+        NewRelic.setAttribute(k, attributes.getBoolean(k))
+      }
+      if (attributes.getType(k) == ReadableType.Number) {
+        NewRelic.setAttribute(k, attributes.getDouble(k))
+      }
+      if (attributes.getType(k) == ReadableType.String) {
+        NewRelic.setAttribute(k, attributes.getString(k))
+      }
+    }
+  }
+
 
   /**
    * This method removes the attribute specified by the name string
@@ -179,7 +197,7 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
     val responseBody = readableMap.getString("responseBody")
 
     try {
-        NewRelic.noticeHttpTransaction(url, httpMethod, statusCode, startTime.toLong(), endTime.toLong(), bytesSent.toLong(), bytesReceived.toLong(), responseBody)
+      NewRelic.noticeHttpTransaction(url, httpMethod, statusCode, startTime.toLong(), endTime.toLong(), bytesSent.toLong(), bytesReceived.toLong(), responseBody)
     } catch (e: Exception) {
       e.printStackTrace()
       NewRelic.recordHandledException(e)
@@ -200,7 +218,7 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
     val responseBody = readableMap.getString("responseBody")
 
     try {
-        NewRelic.noticeHttpTransaction(url, httpMethod, statusCode, startTime.toLong(), endTime.toLong(), bytesSent.toLong(), bytesReceived.toLong(), responseBody)
+      NewRelic.noticeHttpTransaction(url, httpMethod, statusCode, startTime.toLong(), endTime.toLong(), bytesSent.toLong(), bytesReceived.toLong(), responseBody)
     } catch (e: Exception) {
       e.printStackTrace()
       NewRelic.recordHandledException(e)

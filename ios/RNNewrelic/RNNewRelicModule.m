@@ -66,6 +66,17 @@ RCT_EXPORT_METHOD(setAttribute:(NSString *)name data:(NSDictionary *)data)
 }
 
 /**
+ * Create or update multiple attributes
+ */
+RCT_EXPORT_METHOD(setAttributes:(NSDictionary *)attributes){
+    for (NSString *key in attributes) {
+        if ([[attributes valueForKey:key] isKindOfClass:[NSString class]] || [[attributes valueForKey:key] isKindOfClass:[NSNumber class]] || [[attributes valueForKey:key] isKindOfClass:[[NSNumber numberWithBool:YES] class]] || [[attributes valueForKey:key] isKindOfClass:[[NSNumber numberWithBool:YES] class]]) {
+            [NewRelic setAttribute:(NSString * _Nonnull)key value:(id _Nonnull)[attributes valueForKey:key]];
+        }
+    }
+}
+
+/**
  * This method removes the attribute specified by the name string
  */
 RCT_EXPORT_METHOD(removeAttribute:(NSString *)name) {
