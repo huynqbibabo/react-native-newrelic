@@ -1,6 +1,6 @@
 {
   "name": "@bibabovn/react-native-newrelic",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "New relic react native module",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
