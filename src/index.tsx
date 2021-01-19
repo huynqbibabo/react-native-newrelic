@@ -39,6 +39,32 @@ enum Category {
   NETWORK = 'Network',
 }
 
+enum NRAttributes {
+  appId = 'appId',
+  appName = 'appName',
+  accountId = 'accountId',
+  carrier = 'carrier',
+  category = 'category',
+  deviceManufacturer = 'deviceManufacturer',
+  deviceModel = 'deviceModel',
+  eventType = 'eventType',
+  install = 'install',
+  lastInteraction = 'lastInteraction',
+  memUsageMb = 'memUsageMb',
+  newRelicVersion = 'newRelicVersion',
+  osMajorVersion = 'osMajorVersion',
+  osName = 'osName',
+  osVersion = 'osVersion',
+  platform = 'platform',
+  platformVersion = 'platformVersion',
+  sessionDuration = 'sessionDuration',
+  sessionId = 'sessionId',
+  timestamp = 'timestamp',
+  type = 'type',
+  upgradeFrom = 'upgradeFrom',
+  uuid = 'uuid',
+}
+
 export type MetricUnit =
   | Unit.PERCENT
   | Unit.BYTES
@@ -82,6 +108,31 @@ export interface RequestOptions {
     [key: string]: any;
   };
 }
+
+export type Attribute =
+  | NRAttributes.appId
+  | NRAttributes.appName
+  | NRAttributes.accountId
+  | NRAttributes.carrier
+  | NRAttributes.category
+  | NRAttributes.deviceManufacturer
+  | NRAttributes.deviceModel
+  | NRAttributes.eventType
+  | NRAttributes.install
+  | NRAttributes.lastInteraction
+  | NRAttributes.memUsageMb
+  | NRAttributes.newRelicVersion
+  | NRAttributes.osMajorVersion
+  | NRAttributes.osName
+  | NRAttributes.osVersion
+  | NRAttributes.platform
+  | NRAttributes.platformVersion
+  | NRAttributes.sessionDuration
+  | NRAttributes.sessionId
+  | NRAttributes.timestamp
+  | NRAttributes.type
+  | NRAttributes.upgradeFrom
+  | NRAttributes.uuid;
 
 /**
  * Call this to initialize the SDK. Pass a name of the app's landing screen as an argument.
@@ -217,7 +268,10 @@ export function nrRecordMetric(
 /**
  * Create or update an attribute
  */
-export function setAttribute(name: string, value: boolean | number | string) {
+export function setAttribute(
+  name: string | Attribute,
+  value: boolean | number | string
+) {
   RNNewRelic.setAttribute(name, { value });
 }
 
