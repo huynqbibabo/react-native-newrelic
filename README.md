@@ -121,39 +121,109 @@ yarn add @bibabovn/react-native-newrelic
       #endif
     ```
 ## Usage
+See [new relic IOS sdk doc](https://docs.newrelic.com/docs/mobile-monitoring/new-relic-mobile-ios/ios-sdk-api) or [android sdk](https://docs.newrelic.com/docs/mobile-monitoring/new-relic-mobile-android/android-sdk-api) for more detail
+### nrInit()
+> Call this to initialize the NRNewRelic module. capture all unhandle js exception
 
-### nrInit(firstScreen)
-> Call this to initialize the SDK. Pass a name of the app's landing screen as an argument.
-- `firstScreen` is text
+### crashNow(message?: string): void;
+> Test with a native exception
 
-### nrLog(inError)
-> Call this to record a custom error event.
-- `inError` is JavaScript exception
+### startInteraction(interactionName: string): Promise<InteractionId>;
+> Track a method as an interaction
+- `InteractionId` is string
 
-### nrError(inError)
-> Call this to record a custom error event at `error` level.
-- `inError` is JavaScript exception
+### setInteractionName(interactionName: string): void;
+> Name or rename interaction
 
-### nrWarning(inError)
-> Call this to record a custom error event at `warning` level.
-- `inError` is JavaScript exception
+### endInteraction(id: InteractionId): void;
+> End an interaction
+> Required. The string ID for the interaction you want to end.
+> This string is returned when you use startInteraction().
 
-### nrCritical(inError)
-> Call this to record a custom error event at `critical` level.
-- `inError` is JavaScript exception
+### nrRecordMetric(name: string, category: MetricCategory | string, args?: MetricAttributes): void;
+> Create custom metrics
+```ts
+  enum Category {
+    NONE = 'None',
+    VIEW_LOADING = 'View Loading',
+    VIEW_LAYOUT = 'Layout',
+    DATABASE = 'Database',
+    IMAGE = 'Images',
+    JSON = 'JSON',
+    NETWORK = 'Network',
+  }
 
-### nrAddUserId(userId)
-> Call this to associate a user with custom events.
-- `userId` is text
+  type MetricAttributes = {
+    count: number;
+  } | {
+    totalValue: number;
+  } | {
+    count: number;
+    totalValue: number;
+    exclusiveValue: number;
+  } | {
+    count: number;
+    totalValue: number;
+    exclusiveValue: number;
+    countUnit: MetricUnit;
+    valueUnit: MetricUnit;
+  };
+```
 
-### nrInteraction(screen)
-> Call this to record an interaction event.
-- `screen` is text
+### reportJSExceptionHandler(e?: any, isFatal?: boolean): void;
+> Call this to record js handled exception.
+- `e` is js exception
 
-#### nrRecordMetric('myCustomEventName', sampleData)
-> Call this to record a custom metric.
-- `sampledata` is JSON
+#### setAttribute(name: string, value: boolean | number | string): void;
+> Create or update an attribute
 
+### removeAttribute(name: string): void;
+> This method removes the attribute specified by the name string
+
+### setUserId(userId: string): void;
+> Set custom user ID for associating sessions with events and attributes
+
+### recordBreadcrumb(name: string, attributes?: {[key: string]: boolean | number | string}): void;
+> Track app activity/screen that may be helpful for troubleshooting crashes
+
+### recordCustomEvent(eventType: string, eventName?: string, attributes?: {[key: string]: boolean | number | string}): void;
+> Creates and records a custom event, for use in New Relic Insights
+```angular2html
+* IMPORTANT considerations and best practices include:
+*
+* - You should limit the total number of event types to approximately five.
+* eventType is meant to be used for high-level categories.
+* For example, you might create an event type Gestures.
+*
+* - Do not use eventType to name your custom events.
+* Create an attribute to name an event or use the optional name parameter.
+* You can create many custom events; it is only event types that you should limit.
+*
+* - Using the optional name parameter has the same effect as adding a name key in the attributes dictionary.
+* name is a keyword used for displaying your events in the New Relic UI.
+* To create a useful name, you might combine several attributes.
+```
+### noticeNetworkRequest(url: string, options: RequestOptions): void;
+> Record HTTP transactions at varying levels of detail
+
+### noticeNetworkRequest(url: string, options: RequestOptions): void;
+> Record HTTP error transactions at varying levels of detail
+```ts
+interface RequestOptions {
+  httpMethod: 'GET' | 'POST' | 'PUT' | 'HEAD' | 'DELETE' | 'PATCH' | 'OPTIONS';
+  statusCode: number;
+  startTime?: number;
+  endTime?: number;
+  bytesSent?: number;
+  bytesReceived?: number;
+  responseHeader?: any;
+  responseBody?: string;
+  params?: {
+    [key: string]: any;
+  };
+}
+```
+## Example
 ```js
 import * as React from 'react';
 
@@ -166,12 +236,19 @@ import {
   SafeAreaView,
 } from 'react-native';
 import {
+  crashNow,
+  endInteraction,
+  // noticeNetworkFailure,
+  noticeNetworkRequest,
   nrInit,
-  nrAddUserId,
-  nrError,
-  nrInteraction,
-  nrCritical,
-  nrRecordMetric,
+  // nrRecordMetric,
+  recordBreadcrumb,
+  // recordCustomEvent,
+  // removeAttribute,
+  setAttribute,
+  // setInteractionName,
+  setUserId,
+  startInteraction,
 } from 'react-native-newrelic';
 
 export default function App() {
@@ -179,59 +256,85 @@ export default function App() {
   const [isLoading, setLoading] = React.useState<boolean>(true);
 
   React.useEffect(() => {
-    nrInit('Test-Screen');
-    nrAddUserId('TestUser');
-    nrInteraction('TestScreen');
+    nrInit();
+    recordBreadcrumb('User open first screen', { stack: 'feed-stack' });
+    setUserId('test-id');
   }, []);
-
+  //
   React.useEffect(() => {
-    fetch('https://facebook.github.io/react-native/movies.json')
+    const url = 'https://reactnative.dev/movies.json';
+    const startTime = new Date().getTime();
+    fetch(url)
       .then((response) => response.json())
-      .then((responseJson) => {
-        console.log(responseJson);
+      .then((response) => {
+        const endTime = new Date().getTime();
+        noticeNetworkRequest(url, {
+          httpMethod: 'GET',
+          startTime,
+          endTime,
+          responseBody: JSON.stringify(response),
+          statusCode: 200,
+          responseHeader: response.headers,
+        });
+        console.log(response);
         setLoading(false);
-        setResult(responseJson.movies);
+        setResult(response.movies);
       })
       .catch((error) => {
         // logging function can be added here as well
         console.error(error);
-        nrError(error);
       });
   }, []);
-
+  //
   React.useEffect(() => {
     // Create Custom event tables in New Relic Insights
-    const sampledata = {
-      cityName: 'Philadelphia',
-      zipCode: 19134,
-      username: 'bob',
-      alive: true,
-    };
-    nrRecordMetric('MyCustomMetric', sampledata);
+    setAttribute('name', 'User name');
+    setAttribute('isActive', true);
+    setAttribute('age', 23);
   }, []);
-
-  const badApiLoad = () => {
+  //
+  const badApiLoad = async () => {
     setLoading(true);
-    fetch('https://facebook.github.io/react-native/moviessssssssss.json')
+    const interactionId = await startInteraction('StartLoadBadApiCall');
+    const url = 'https://facebook.github.io/react-native/moviessssssssss.json';
+    fetch(url)
       .then((response) => response.json())
       .then((responseJson) => {
         console.log(responseJson);
         setLoading(false);
+        endInteraction(interactionId);
         setResult(responseJson.movies);
       })
       .catch((error) => {
+        // noticeNetworkFailure(url, { httpMethod: 'GET', statusCode: 0 });
         setLoading(false);
+        endInteraction(interactionId);
         console.error(error);
-        // logging function can be added here as well
-        nrCritical(error);
       });
+  };
+
+  const testNativeCrash = () => {
+    crashNow('Test crash message');
+  };
+
+  const jsErrorHandle = () => {
+    throw new Error('test js error handle');
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <Button title={'Bad API'} onPress={badApiLoad} color={'#3365f3'} />
+      <Button
+        title={'Test JS error handle'}
+        onPress={jsErrorHandle}
+        color={'#3365f3'}
+      />
+      <Button
+        title={'Test native crash'}
+        onPress={testNativeCrash}
+        color={'#3365f3'}
+      />
       <FlatList
-        style={{ flex: 1 }}
         data={dataSource}
         renderItem={({ item }) => (
           <Text>

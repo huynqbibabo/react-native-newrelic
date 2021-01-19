@@ -29,7 +29,7 @@ export default function App() {
   const [isLoading, setLoading] = React.useState<boolean>(true);
 
   React.useEffect(() => {
-    nrInit(true);
+    nrInit();
     recordBreadcrumb('User open first screen', { stack: 'feed-stack' });
     setUserId('test-id');
   }, []);
@@ -46,7 +46,7 @@ export default function App() {
           startTime,
           endTime,
           responseBody: JSON.stringify(response),
-          statusCode: response.status,
+          statusCode: 200,
           responseHeader: response.headers,
         });
         console.log(response);
@@ -91,7 +91,7 @@ export default function App() {
   };
 
   const jsErrorHandle = () => {
-    throw new Error();
+    throw new Error('test js error handle');
   };
 
   return (

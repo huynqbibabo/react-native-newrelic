@@ -1,6 +1,16 @@
 import { NativeModules } from 'react-native';
+import { parse } from 'stacktrace-parser';
+import type { LiteralUnion } from 'type-fest';
 
 const { RNNewRelic } = NativeModules;
+
+export interface StackFrame {
+  file: string | null;
+  methodName: LiteralUnion<'<unknown>', string>;
+  arguments: string[];
+  lineNumber: number | null;
+  column: number | null;
+}
 
 export interface NRError {
   message?: string;
@@ -47,27 +57,102 @@ export type MetricCategory =
 
 export type InteractionId = string;
 
+export type MetricAttributes =
+  | { count: number }
+  | { totalValue: number }
+  | { count: number; totalValue: number; exclusiveValue: number }
+  | {
+      count: number;
+      totalValue: number;
+      exclusiveValue: number;
+      countUnit: MetricUnit;
+      valueUnit: MetricUnit;
+    };
+
+export interface RequestOptions {
+  httpMethod: 'GET' | 'POST' | 'PUT' | 'HEAD' | 'DELETE' | 'PATCH' | 'OPTIONS';
+  statusCode: number;
+  startTime?: number;
+  endTime?: number;
+  bytesSent?: number;
+  bytesReceived?: number;
+  responseHeader?: any;
+  responseBody?: string;
+  params?: {
+    [key: string]: any;
+  };
+}
+
 /**
  * Call this to initialize the SDK. Pass a name of the app's landing screen as an argument.
  */
-export function nrInit(overrideConsole?: boolean) {
+export function nrInit() {
   ErrorUtils.setGlobalHandler((error, _isFatal) =>
     reportJSExceptionHandler(error)
   );
-  if (overrideConsole || !__DEV__) {
-    console.error = (message: any, ...error: any[]) =>
-      reportJSExceptionHandler(error, message);
-  }
 }
 
-export function reportJSExceptionHandler(error?: any, message?: any) {
-  // TODO: record error
-  console.log(message, error);
-  RNNewRelic.reportJSException(Object.assign({ message }, error));
+function parseErrorStack(e: any): Array<any> {
+  if (!e || !e.stack) {
+    return [];
+  }
+  return Array.isArray(e.stack)
+    ? e.stack
+    : parse(e.stack).map((frame) => ({
+        ...frame,
+        column: frame.column != null ? frame.column - 1 : null,
+      }));
+}
+
+export function reportJSExceptionHandler(e?: any, isFatal?: boolean) {
+  const stack = parseErrorStack(e);
+  const currentExceptionID = new Date().getTime();
+  const originalMessage = e.message || '';
+  let message = originalMessage;
+  if (e.componentStack != null) {
+    message += `\n\nThis error is located at:${e.componentStack}`;
+  }
+  const namePrefix = e.name == null || e.name === '' ? '' : `${e.name}: `;
+
+  if (!message.startsWith(namePrefix)) {
+    message = namePrefix + message;
+  }
+
+  message =
+    e.jsEngine == null ? message : `${message}, js engine: ${e.jsEngine}`;
+
+  const isHandledByLogBox = e.forceRedbox !== true;
+
+  const error = {
+    message,
+    originalMessage: message === originalMessage ? null : originalMessage,
+    name: e.name == null || e.name === '' ? null : e.name,
+    componentStack:
+      typeof e.componentStack === 'string' ? e.componentStack : null,
+    stack,
+    id: currentExceptionID,
+    isFatal,
+    extraData: {
+      jsEngine: e.jsEngine,
+      rawStack: e.stack,
+
+      // Hack to hide native redboxes when in the LogBox experiment.
+      // This is intentionally untyped and stuffed here, because it is temporary.
+      suppressRedBox: isHandledByLogBox,
+    },
+  };
+
+  if (__DEV__) {
+    // we feed back into console.error, to make sure any methods that are
+    // monkey patched on top of console.error are called when coming from
+    // handleException
+    console.error(error.message);
+  }
+  RNNewRelic.reportJSException(error);
 }
 
 /**
- * Call this to associate a user with custom events
+ * Test with a native exception
  * @param message
  */
 export function crashNow(message?: string) {
@@ -113,17 +198,7 @@ export function endInteraction(id: InteractionId) {
 export function nrRecordMetric(
   name: string,
   category: MetricCategory | string,
-  args?:
-    | { count: number }
-    | { totalValue: number }
-    | { count: number; totalValue: number; exclusiveValue: number }
-    | {
-        count: number;
-        totalValue: number;
-        exclusiveValue: number;
-        countUnit: MetricUnit;
-        valueUnit: MetricUnit;
-      }
+  args?: MetricAttributes
 ) {
   const params = Object.assign(
     {
@@ -198,27 +273,7 @@ export function recordCustomEvent(
 /**
  * Record HTTP transactions at varying levels of detail
  */
-export function noticeNetworkRequest(
-  url: string,
-  options: {
-    httpMethod:
-      | 'GET'
-      | 'POST'
-      | 'PUT'
-      | 'HEAD'
-      | 'DELETE'
-      | 'PATCH'
-      | 'OPTIONS';
-    statusCode: number;
-    startTime?: number; // in milliseconds
-    endTime?: number; // in milliseconds
-    bytesSent?: number;
-    bytesReceived?: number;
-    responseHeader?: any;
-    responseBody?: string; // json string
-    params?: { [key: string]: any };
-  }
-) {
+export function noticeNetworkRequest(url: string, options: RequestOptions) {
   const attributes = Object.assign(
     {
       httpMethod: 'GET',
@@ -238,29 +293,9 @@ export function noticeNetworkRequest(
 }
 
 /**
- * Record HTTP transactions at varying levels of detail
+ * Record HTTP error transactions at varying levels of detail
  */
-export function noticeNetworkFailure(
-  url: string,
-  options: {
-    httpMethod:
-      | 'GET'
-      | 'POST'
-      | 'PUT'
-      | 'HEAD'
-      | 'DELETE'
-      | 'PATCH'
-      | 'OPTIONS';
-    statusCode: number;
-    startTime?: number; // in milliseconds
-    endTime?: number; // in milliseconds
-    bytesSent?: number;
-    bytesReceived?: number;
-    responseHeader?: { [key: string]: boolean | number | string };
-    responseBody?: string;
-    params?: { [key: string]: any };
-  }
-) {
+export function noticeNetworkFailure(url: string, options: RequestOptions) {
   const attributes = Object.assign(
     {
       httpMethod: 'GET',

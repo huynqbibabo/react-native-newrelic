@@ -144,21 +144,22 @@ RCT_EXPORT_METHOD(noticeNetworkFailure:(NSString *)url dict:(NSDictionary *)dict
 /**
  * Record js exception
  */
-RCT_EXPORT_METHOD(reportJSException:(NSDictionary *)error) {
+RCT_EXPORT_METHOD(reportJSException:(NSDictionary *)jsException) {
+    NSString *message = [RCTConvert NSString:jsException[@"message"]];
+    NSArray<NSDictionary *> *stack = [RCTConvert NSDictionaryArray:jsException[@"stack"]];
+    NSString *description = [@"Unhandled JS Exception: " stringByAppendingString:message];
+    NSDictionary *errorInfo = @{NSLocalizedDescriptionKey : description, RCTJSStackTraceKey : stack};
+    NSError *error = [NSError errorWithDomain:RCTErrorDomain code:0 userInfo:errorInfo];
     
-    NSArray<NSDictionary<NSString *, id> *> *stackTrace = [RCTConvert NSArray:error[@"stack"]];
-    NSString *localizedDescription = error[@"name"];
-    NSString *name = [NSString stringWithFormat:@"%@: %@", RCTFatalExceptionName, localizedDescription];
-
+    NSString *name = [NSString stringWithFormat:@"%@: %@", RCTFatalExceptionName, error.localizedDescription];
     // Truncate the localized description to 175 characters to avoid wild screen overflows
-    NSString *message = RCTFormatError(localizedDescription, stackTrace, 64);
-
+    NSString *errMessage = RCTFormatError(error.localizedDescription, error.userInfo[RCTJSStackTraceKey], 175);
     // Attach an untruncated copy of the description to the userInfo, in case it is needed
-    NSMutableDictionary *userInfo = [stackTrace mutableCopy];
-    [userInfo setObject:RCTFormatError(localizedDescription, stackTrace, -1)
+    NSMutableDictionary *userInfo = [error.userInfo mutableCopy];
+    [userInfo setObject:RCTFormatError(error.localizedDescription, error.userInfo[RCTJSStackTraceKey], -1)
                  forKey:@"RCTUntruncatedMessageKey"];
     
-    [NewRelic recordHandledException:(NSException * _Nonnull)[[NSException alloc] initWithName:name reason:message userInfo:userInfo]];
+    [NewRelic recordHandledException:(NSException * _Nonnull)[[NSException alloc] initWithName:name reason:errMessage userInfo:userInfo]];
 }
 
 @end

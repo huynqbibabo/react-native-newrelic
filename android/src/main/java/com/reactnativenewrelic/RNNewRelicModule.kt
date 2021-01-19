@@ -4,7 +4,8 @@ import android.util.Log
 import com.facebook.react.bridge.*
 import com.newrelic.agent.android.NewRelic
 import com.newrelic.agent.android.metric.MetricUnit
-import java.util.jar.Attributes
+import java.util.*
+import kotlin.collections.HashMap
 
 
 class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
@@ -75,17 +76,12 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
    */
   @ReactMethod
   fun recordMetric(name: String, category: String, readableMap: ReadableMap) {
-    try {
       val count = readableMap.getInt("count")
       val totalValue = readableMap.getDouble("totalValue")
       val exclusiveValue = readableMap.getDouble("exclusiveValue")
       val countUnit = readableMap.getString("countUnit")
       val valueUnit = readableMap.getString("valueUnit")
       NewRelic.recordMetric(name, category, count, totalValue, exclusiveValue, countUnit as MetricUnit, valueUnit as MetricUnit?)
-    } catch (e: Exception) {
-      e.printStackTrace()
-      NewRelic.recordHandledException(e)
-    }
   }
 
   /**
@@ -175,7 +171,7 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
   @ReactMethod
   fun noticeNetworkRequest(url: String, readableMap: ReadableMap) {
     val httpMethod = readableMap.getString("httpMethod")
-    val statusCode = readableMap.getInt("statusCode")
+    val statusCode = readableMap.getDouble("statusCode").toInt()
     val startTime = readableMap.getDouble("startTime")
     val endTime = readableMap.getDouble("endTime")
     val bytesSent = readableMap.getDouble("bytesSent")
@@ -212,10 +208,27 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
   }
 
   @ReactMethod
-  fun reportJSException(error: ReadableMap, attributes: ReadableMap) {
+  fun reportJSException(error: ReadableMap) {
+    val message: String? = error.getString("message")
+    val stackFrames: ReadableArray = error.getArray("stack")!!
 
-    val jsError = Exception(error.getString("name"), Throwable(error.getMap("stack")))
-    NewRelic.recordHandledException()
+    val customException: java.lang.Exception
+    customException = Exception(message)
+
+    val stackTraceElements = arrayOfNulls<StackTraceElement>(stackFrames.size())
+//    val componentStack = error.getString("componentStack");
+
+    for (i in 0 until stackFrames.size()) {
+      val stackFrame: ReadableMap = stackFrames.getMap(i)!!
+      val fn = stackFrame.getString("methodName")
+      val file = stackFrame.getString("file")
+      stackTraceElements[i] = StackTraceElement("", fn, file, -1)
+    }
+
+    customException.stackTrace = stackTraceElements
+    val attributes = error.getMap("extraData")?.toHashMap()
+
+    NewRelic.recordHandledException(customException, attributes)
   }
 
   companion object {

@@ -156,5 +156,8 @@
   "directories": {
     "example": "example",
     "lib": "lib"
+  },
+  "dependencies": {
+    "stacktrace-parser": "^0.1.10"
   }
 }
