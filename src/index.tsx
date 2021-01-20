@@ -250,7 +250,7 @@ export function endInteraction(id: InteractionId) {
  *  NETWORK	Web service integration methods, remote resource loading
  * Create custom metrics
  */
-export function nrRecordMetric(
+export function recordMetric(
   name: string,
   category: MetricCategory | string,
   args?: MetricAttributes
