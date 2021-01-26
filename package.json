@@ -1,7 +1,7 @@
 {
-  "name": "@bibabovn/react-native-newrelic",
+  "name": "react-native-newrelic",
   "version": "1.6.2",
-  "description": "New relic react native module",
+  "description": "New relic module for react native IOS and Android app",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
   "types": "lib/typescript/index.d.ts",
