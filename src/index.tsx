@@ -142,9 +142,9 @@ export interface EventAttributes {
  * Call this to initialize the SDK. Pass a name of the app's landing screen as an argument.
  */
 export function nrInit() {
-  ErrorUtils.setGlobalHandler((error, _isFatal) =>
-    reportJSExceptionHandler(error)
-  );
+  ErrorUtils.setGlobalHandler((error, _isFatal) => {
+    if (_isFatal) reportJSExceptionHandler(error);
+  });
 }
 
 function parseErrorStack(e: any): Array<any> {

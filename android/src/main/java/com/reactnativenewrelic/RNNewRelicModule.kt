@@ -79,7 +79,7 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
     val exclusiveValue = readableMap.getDouble("exclusiveValue")
     val countUnit = readableMap.getString("countUnit")
     val valueUnit = readableMap.getString("valueUnit")
-    NewRelic.recordMetric(name, category, count, totalValue, exclusiveValue, countUnit as MetricUnit, valueUnit as MetricUnit?)
+    NewRelic.recordMetric(name, category, count, totalValue, exclusiveValue, countUnit as MetricUnit?, valueUnit as MetricUnit?)
   }
 
   /**

@@ -114,7 +114,8 @@ RCT_EXPORT_METHOD(recordBreadcrumb:(NSString *)name attributes:(NSDictionary *)a
  * name is a keyword used for displaying your events in the New Relic UI.
  * To create a useful name, you might combine several attributes.
  */
-RCT_EXPORT_METHOD(recordCustomEvent:(NSString *)eventType eventName:()eventName attrs:(NSDictionary *)attrs) {
+RCT_EXPORT_METHOD(recordCustomEvent:(NSString *)eventType eventName:(NSString *)eventName attrs:(NSDictionary *)attrs) {
+    
     [NewRelic recordCustomEvent:(NSString * _Nonnull)eventType name:(NSString * _Nullable)eventName attributes:(NSDictionary * _Nullable)attrs];
 }
 

@@ -14,9 +14,9 @@ import {
   // noticeNetworkFailure,
   noticeNetworkRequest,
   nrInit,
-  // nrRecordMetric,
+  recordMetric,
   recordBreadcrumb,
-  // recordCustomEvent,
+  recordCustomEvent,
   // removeAttribute,
   setAttribute,
   setAttributes,
@@ -94,6 +94,20 @@ export default function App() {
     throw new Error('test js error handle');
   };
 
+  const nrCustomEvent = () => {
+    recordCustomEvent('EventCategory', 'Custom Event', {
+      stack: 'mainStack',
+      status: true,
+      age: 21,
+    });
+  };
+
+  const customMetrics = () => {
+    recordMetric('Custom metrics', 'EventCategory', {
+      count: 1,
+    });
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <Button title={'Bad API'} onPress={badApiLoad} color={'#3365f3'} />
@@ -105,6 +119,16 @@ export default function App() {
       <Button
         title={'Test native crash'}
         onPress={testNativeCrash}
+        color={'#3365f3'}
+      />
+      <Button
+        title={'Record Custom Event'}
+        onPress={nrCustomEvent}
+        color={'#3365f3'}
+      />
+      <Button
+        title={'Record Custom Metric'}
+        onPress={customMetrics}
         color={'#3365f3'}
       />
       <FlatList
