@@ -13,7 +13,7 @@ import {
   endInteraction,
   // noticeNetworkFailure,
   noticeNetworkRequest,
-  nrInit,
+  enableAutoRecordJSUncaughtException,
   recordMetric,
   recordBreadcrumb,
   recordCustomEvent,
@@ -23,6 +23,7 @@ import {
   // setInteractionName,
   setUserId,
   startInteraction,
+  recordHandledException,
 } from 'react-native-newrelic';
 
 export default function App() {
@@ -30,7 +31,7 @@ export default function App() {
   const [isLoading, setLoading] = React.useState<boolean>(true);
 
   React.useEffect(() => {
-    nrInit();
+    enableAutoRecordJSUncaughtException();
     recordBreadcrumb('User open first screen', { stack: 'feed-stack' });
     setUserId('test-id');
   }, []);
@@ -91,7 +92,12 @@ export default function App() {
   };
 
   const jsErrorHandle = () => {
-    throw new Error('test js error handle');
+    const jsError = new Error('Test js error handle');
+    recordHandledException(jsError, {
+      module: 'mainStack',
+      isActive: true,
+      age: 32,
+    });
   };
 
   const nrCustomEvent = () => {

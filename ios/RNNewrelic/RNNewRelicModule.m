@@ -125,8 +125,6 @@ RCT_EXPORT_METHOD(recordCustomEvent:(NSString *)eventType eventName:(NSString *)
 RCT_EXPORT_METHOD(noticeNetworkRequest:(NSString *)url dict:(NSDictionary *)dict) {
     NSURL *requestUrl = [RCTConvert NSURL:url];
     NSString *method = [RCTConvert NSString:dict[@"httpMethod"]];
-//    NSNumber *startTime = [RCTConvert NSNumber:dict[@"startTime"]];
-//    NSNumber *endTime = [RCTConvert NSNumber:dict[@"endTime"]];
     NSDictionary *headers = [RCTConvert NSDictionary:dict[@"responseHeader"]];
     NSInteger statusCode = [RCTConvert NSInteger:dict[@"statusCode"]];
     NSUInteger bytesSent = [RCTConvert NSUInteger:dict[@"bytesSent"]];
@@ -134,8 +132,6 @@ RCT_EXPORT_METHOD(noticeNetworkRequest:(NSString *)url dict:(NSDictionary *)dict
     NSDictionary *params = [RCTConvert NSDictionary:dict[@"params"]];
     
     NSData *jsonBody = [dict[@"responseBody"] dataUsingEncoding:NSUTF8StringEncoding];
-//    NSError *error;
-//    id jsonObject = [NSJSONSerialization JSONObjectWithData:jsonBody options:0 error:&error];
     
     NRTimer *timer = [NRTimer new];
     
@@ -154,24 +150,23 @@ RCT_EXPORT_METHOD(noticeNetworkFailure:(NSString *)url dict:(NSDictionary *)dict
 }
 
 /**
- * Record js exception
+ * Record handled JS exception
  */
-RCT_EXPORT_METHOD(reportJSException:(NSDictionary *)jsException) {
-    NSString *message = [RCTConvert NSString:jsException[@"message"]];
-    NSArray<NSDictionary *> *stack = [RCTConvert NSDictionaryArray:jsException[@"stack"]];
-    NSString *description = [@"Unhandled JS Exception: " stringByAppendingString:message];
+RCT_EXPORT_METHOD(recordHandledException:(NSDictionary *)jsError attributes:(NSDictionary *)attributes)
+{
+    NSError* e = [self pareJSErrorToNSException:jsError];
+    [NewRelic recordError:(NSError * _Nonnull)e attributes:(NSDictionary * _Nullable)attributes];
+}
+
+-(NSError *) pareJSErrorToNSException:(NSDictionary *)jsError {
+    NSString *message = [RCTConvert NSString:jsError[@"message"]];
+    NSArray<NSDictionary *> *stack = [RCTConvert NSDictionaryArray:jsError[@"stack"]];
+    NSString *description = [@"Uncaught JS Exception: " stringByAppendingString:message];
     NSDictionary *errorInfo = @{NSLocalizedDescriptionKey : description, RCTJSStackTraceKey : stack};
     NSError *error = [NSError errorWithDomain:RCTErrorDomain code:0 userInfo:errorInfo];
     
-    NSString *name = [NSString stringWithFormat:@"%@: %@", RCTFatalExceptionName, error.localizedDescription];
-    // Truncate the localized description to 175 characters to avoid wild screen overflows
-    NSString *errMessage = RCTFormatError(error.localizedDescription, error.userInfo[RCTJSStackTraceKey], 175);
-    // Attach an untruncated copy of the description to the userInfo, in case it is needed
-    NSMutableDictionary *userInfo = [error.userInfo mutableCopy];
-    [userInfo setObject:RCTFormatError(error.localizedDescription, error.userInfo[RCTJSStackTraceKey], -1)
-                 forKey:@"RCTUntruncatedMessageKey"];
-    
-    [NewRelic recordHandledException:(NSException * _Nonnull)[[NSException alloc] initWithName:name reason:errMessage userInfo:userInfo]];
+    return error;
 }
+
 
 @end

@@ -1,149 +1,22 @@
 import { NativeModules } from 'react-native';
 import { parse } from 'stacktrace-parser';
-import type { LiteralUnion } from 'type-fest';
+import type {
+  Attribute,
+  EventAttributes,
+  InteractionId,
+  MetricAttributes,
+  MetricCategory,
+  RequestOptions,
+} from './types';
 
 const { RNNewRelic } = NativeModules;
 
-export interface StackFrame {
-  file: string | null;
-  methodName: LiteralUnion<'<unknown>', string>;
-  arguments: string[];
-  lineNumber: number | null;
-  column: number | null;
-}
-
-export interface NRError {
-  message?: string;
-  stack?: string;
-  lineNumber?: string;
-  fileName?: string;
-  columnNumber?: string;
-  name?: string;
-}
-
-enum Unit {
-  PERCENT = '%',
-  BYTES = 'bytes',
-  SECONDS = 'sec',
-  BYTES_PER_SECOND = 'bytes/second',
-  OPERATIONS = 'op',
-}
-
-enum Category {
-  NONE = 'None',
-  VIEW_LOADING = 'View Loading',
-  VIEW_LAYOUT = 'Layout',
-  DATABASE = 'Database',
-  IMAGE = 'Images',
-  JSON = 'JSON',
-  NETWORK = 'Network',
-}
-
-enum NRAttributes {
-  appId = 'appId',
-  appName = 'appName',
-  accountId = 'accountId',
-  carrier = 'carrier',
-  category = 'category',
-  deviceManufacturer = 'deviceManufacturer',
-  deviceModel = 'deviceModel',
-  eventType = 'eventType',
-  install = 'install',
-  lastInteraction = 'lastInteraction',
-  memUsageMb = 'memUsageMb',
-  newRelicVersion = 'newRelicVersion',
-  osMajorVersion = 'osMajorVersion',
-  osName = 'osName',
-  osVersion = 'osVersion',
-  platform = 'platform',
-  platformVersion = 'platformVersion',
-  sessionDuration = 'sessionDuration',
-  sessionId = 'sessionId',
-  timestamp = 'timestamp',
-  type = 'type',
-  upgradeFrom = 'upgradeFrom',
-  uuid = 'uuid',
-}
-
-export type MetricUnit =
-  | Unit.PERCENT
-  | Unit.BYTES
-  | Unit.SECONDS
-  | Unit.BYTES_PER_SECOND
-  | Unit.OPERATIONS;
-
-export type MetricCategory =
-  | Category.NONE
-  | Category.VIEW_LAYOUT
-  | Category.VIEW_LOADING
-  | Category.DATABASE
-  | Category.IMAGE
-  | Category.JSON
-  | Category.NETWORK;
-
-export type InteractionId = string;
-
-export type MetricAttributes =
-  | { count: number }
-  | { totalValue: number }
-  | { count: number; totalValue: number; exclusiveValue: number }
-  | {
-      count: number;
-      totalValue: number;
-      exclusiveValue: number;
-      countUnit: MetricUnit;
-      valueUnit: MetricUnit;
-    };
-
-export interface RequestOptions {
-  httpMethod: 'GET' | 'POST' | 'PUT' | 'HEAD' | 'DELETE' | 'PATCH' | 'OPTIONS';
-  statusCode: number;
-  startTime?: number;
-  endTime?: number;
-  bytesSent?: number;
-  bytesReceived?: number;
-  responseHeader?: any;
-  responseBody?: string;
-  params?: {
-    [key: string]: any;
-  };
-}
-
-export type Attribute =
-  | NRAttributes.appId
-  | NRAttributes.appName
-  | NRAttributes.accountId
-  | NRAttributes.carrier
-  | NRAttributes.category
-  | NRAttributes.deviceManufacturer
-  | NRAttributes.deviceModel
-  | NRAttributes.eventType
-  | NRAttributes.install
-  | NRAttributes.lastInteraction
-  | NRAttributes.memUsageMb
-  | NRAttributes.newRelicVersion
-  | NRAttributes.osMajorVersion
-  | NRAttributes.osName
-  | NRAttributes.osVersion
-  | NRAttributes.platform
-  | NRAttributes.platformVersion
-  | NRAttributes.sessionDuration
-  | NRAttributes.sessionId
-  | NRAttributes.timestamp
-  | NRAttributes.type
-  | NRAttributes.upgradeFrom
-  | NRAttributes.uuid;
-
-export interface EventAttributes {
-  [key: string]: boolean | number | string;
-}
-
 /**
- * Call this to initialize the SDK. Pass a name of the app's landing screen as an argument.
+ * Call this to enable auto record js uncaught exception
  */
-export function nrInit() {
+export function enableAutoRecordJSUncaughtException() {
   ErrorUtils.setGlobalHandler((error, _isFatal) => {
-    if (_isFatal) reportJSExceptionHandler(error);
+    if (_isFatal) recordHandledException(error);
   });
 }
 
@@ -159,37 +32,40 @@ function parseErrorStack(e: any): Array<any> {
       }));
 }
 
-export function reportJSExceptionHandler(e?: any, isFatal?: boolean) {
-  const stack = parseErrorStack(e);
+function pareJSException(error?: any, isFatal?: boolean): any {
+  const stack = parseErrorStack(error);
   const currentExceptionID = new Date().getTime();
-  const originalMessage = e.message || '';
+  const originalMessage = error.message || '';
   let message = originalMessage;
-  if (e.componentStack != null) {
-    message += `\n\nThis error is located at:${e.componentStack}`;
+  if (error.componentStack != null) {
+    message += `\n\nThis error is located at:${error.componentStack}`;
   }
-  const namePrefix = e.name == null || e.name === '' ? '' : `${e.name}: `;
+  const namePrefix =
+    error.name == null || error.name === '' ? '' : `${error.name}: `;
 
   if (!message.startsWith(namePrefix)) {
     message = namePrefix + message;
   }
 
   message =
-    e.jsEngine == null ? message : `${message}, js engine: ${e.jsEngine}`;
+    error.jsEngine == null
+      ? message
+      : `${message}, js engine: ${error.jsEngine}`;
 
-  const isHandledByLogBox = e.forceRedbox !== true;
+  const isHandledByLogBox = error.forceRedbox !== true;
 
-  const error = {
+  const jSException = {
     message,
     originalMessage: message === originalMessage ? null : originalMessage,
-    name: e.name == null || e.name === '' ? null : e.name,
+    name: error.name == null || error.name === '' ? null : error.name,
     componentStack:
-      typeof e.componentStack === 'string' ? e.componentStack : null,
+      typeof error.componentStack === 'string' ? error.componentStack : null,
     stack,
     id: currentExceptionID,
     isFatal,
     extraData: {
-      jsEngine: e.jsEngine,
-      rawStack: e.stack,
+      jsEngine: error.jsEngine,
+      rawStack: error.stack,
 
       // Hack to hide native redboxes when in the LogBox experiment.
       // This is intentionally untyped and stuffed here, because it is temporary.
@@ -201,9 +77,23 @@ export function reportJSExceptionHandler(e?: any, isFatal?: boolean) {
     // we feed back into console.error, to make sure any methods that are
     // monkey patched on top of console.error are called when coming from
     // handleException
-    console.error(error.message);
+    console.error(jSException.message);
   }
-  RNNewRelic.reportJSException(error);
+  return jSException;
+}
+
+/**
+ * Records a js handled exception.
+ * Optionally takes map with additional attributes showing context.
+ * @param error
+ * @param attributes
+ */
+export function recordHandledException(
+  error: any,
+  attributes?: EventAttributes
+) {
+  const jSException = pareJSException(error);
+  RNNewRelic.recordHandledException(jSException, attributes);
 }
 
 /**
@@ -374,3 +264,12 @@ export function noticeNetworkFailure(url: string, options: RequestOptions) {
   );
   RNNewRelic.noticeNetworkFailure(url, attributes);
 }
+
+export type {
+  Attribute,
+  EventAttributes,
+  InteractionId,
+  MetricAttributes,
+  MetricCategory,
+  RequestOptions,
+};

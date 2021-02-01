@@ -226,7 +226,7 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
   }
 
   @ReactMethod
-  fun reportJSException(error: ReadableMap) {
+  fun recordHandledException(error: ReadableMap, params: ReadableMap?) {
     val message: String? = error.getString("message")
     val stackFrames: ReadableArray = error.getArray("stack")!!
 
@@ -244,7 +244,8 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
 
     customException.stackTrace = stackTraceElements
-    val attributes = error.getMap("extraData")?.toHashMap()
+
+    val attributes = params?.toHashMap()
 
     NewRelic.recordHandledException(customException, attributes)
   }
