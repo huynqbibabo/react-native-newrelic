@@ -47,7 +47,7 @@ RCT_EXPORT_METHOD(endInteraction:(NSString *)interactionId) {
  * NETWORK    Web service integration methods, remote resource loading
  * Create custom metrics
  */
-RCT_EXPORT_METHOD(recordMetric:(NSString *)name category:(NSString *)category attrs:(NSDictionary *)attrs)
+RCT_EXPORT_METHOD(recordMetric:(NSString *)category name:(NSString *)name attrs:(NSDictionary *)attrs)
 {
     NSNumber *value = attrs[@"totalValue"];
     NRMetricUnit *vUnits = attrs[@"valueUnit"];

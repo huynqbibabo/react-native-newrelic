@@ -73,7 +73,7 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
    * Create custom metrics
    */
   @ReactMethod
-  fun recordMetric(name: String, category: String, readableMap: ReadableMap) {
+  fun recordMetric(category: String, name: String, readableMap: ReadableMap) {
     val count = readableMap.getInt("count")
     val totalValue = readableMap.getDouble("totalValue")
     val exclusiveValue = readableMap.getDouble("exclusiveValue")

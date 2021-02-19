@@ -590,7 +590,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = vn.bibabo.pregnant;
+				PRODUCT_BUNDLE_IDENTIFIER = vn.bibabo.newrelicexample;
 				PRODUCT_NAME = NewrelicExample;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -614,7 +614,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = vn.bibabo.pregnant;
+				PRODUCT_BUNDLE_IDENTIFIER = vn.bibabo.newrelicexample;
 				PRODUCT_NAME = NewrelicExample;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";

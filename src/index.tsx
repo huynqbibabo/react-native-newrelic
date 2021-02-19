@@ -141,8 +141,8 @@ export function endInteraction(id: InteractionId) {
  * Create custom metrics
  */
 export function recordMetric(
-  name: string,
   category: MetricCategory | string,
+  name: string,
   args?: MetricAttributes
 ) {
   const params = Object.assign(
@@ -219,7 +219,7 @@ export function recordCustomEvent(
   eventName?: string,
   attributes?: EventAttributes
 ) {
-  RNNewRelic.recordCustomEvent(eventName, eventType, attributes);
+  RNNewRelic.recordCustomEvent(eventType, eventName, attributes);
 }
 
 /**
