@@ -93,7 +93,7 @@ export function recordHandledException(
   attributes?: EventAttributes
 ) {
   const jSException = pareJSException(error);
-  RNNewRelic.recordHandledException(jSException, attributes);
+  return RNNewRelic.recordHandledException(jSException, attributes);
 }
 
 /**
@@ -101,7 +101,7 @@ export function recordHandledException(
  * @param message
  */
 export function crashNow(message?: string) {
-  RNNewRelic.crashNow(message);
+  return RNNewRelic.crashNow(message);
 }
 
 /**
@@ -118,7 +118,7 @@ export async function startInteraction(
  * Name or rename an interaction
  */
 export function setInteractionName(interactionName: string) {
-  RNNewRelic.setInteractionName(interactionName);
+  return RNNewRelic.setInteractionName(interactionName);
 }
 
 /**
@@ -127,7 +127,7 @@ export function setInteractionName(interactionName: string) {
  * This string is returned when you use startInteraction().
  */
 export function endInteraction(id: InteractionId) {
-  RNNewRelic.endInteraction(id);
+  return RNNewRelic.endInteraction(id);
 }
 
 /**
@@ -156,7 +156,7 @@ export function recordMetric(
   if (params.exclusiveValue === 0) {
     params.exclusiveValue = params.totalValue;
   }
-  RNNewRelic.recordMetric(name, category, params);
+  return RNNewRelic.recordMetric(name, category, params);
 }
 
 /**
@@ -166,35 +166,35 @@ export function setAttribute(
   name: string | Attribute,
   value: boolean | number | string
 ) {
-  RNNewRelic.setAttribute(name, { value });
+  return RNNewRelic.setAttribute(name, { value });
 }
 
 /**
  * Create or update multiple attributes
  */
 export function setAttributes(attributes: EventAttributes) {
-  RNNewRelic.setAttributes(attributes);
+  return RNNewRelic.setAttributes(attributes);
 }
 
 /**
  * This method removes the attribute specified by the name string
  */
 export function removeAttribute(name: string) {
-  RNNewRelic.removeAttribute(name);
+  return RNNewRelic.removeAttribute(name);
 }
 
 /**
  * Set custom user ID for associating sessions with events and attributes
  */
 export function setUserId(userId: string) {
-  RNNewRelic.setUserId(userId);
+  return RNNewRelic.setUserId(userId);
 }
 
 /**
  * Track app activity/screen that may be helpful for troubleshooting crashes
  */
 export function recordBreadcrumb(name: string, attributes?: EventAttributes) {
-  RNNewRelic.recordBreadcrumb(name, attributes);
+  return RNNewRelic.recordBreadcrumb(name, attributes);
 }
 
 /**
@@ -219,7 +219,7 @@ export function recordCustomEvent(
   eventName?: string,
   attributes?: EventAttributes
 ) {
-  RNNewRelic.recordCustomEvent(eventType, eventName, attributes);
+  return RNNewRelic.recordCustomEvent(eventType, eventName, attributes);
 }
 
 /**
@@ -241,7 +241,7 @@ export function noticeNetworkRequest(url: string, options: RequestOptions) {
     options
   );
 
-  RNNewRelic.noticeNetworkRequest(url, attributes);
+  return RNNewRelic.noticeNetworkRequest(url, attributes);
 }
 
 /**
@@ -262,7 +262,7 @@ export function noticeNetworkFailure(url: string, options: RequestOptions) {
     },
     options
   );
-  RNNewRelic.noticeNetworkFailure(url, attributes);
+  return RNNewRelic.noticeNetworkFailure(url, attributes);
 }
 
 export type {

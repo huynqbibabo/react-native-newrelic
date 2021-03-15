@@ -226,8 +226,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/**",
-					"$(SRCROOT)/../../../ios/Pods/NewRelicAgent/Frameworks",
-					"$(SRCROOT)/../example/ios/Pods/NewRelicAgent/Frameworks",
 					"$(SRCROOT)/../../../ios",
 					"$(SRCROOT)/../../../ios/Frameworks",
 				);
@@ -253,8 +251,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/**",
-					"$(SRCROOT)/../../../ios/Pods/NewRelicAgent/Frameworks",
-					"$(SRCROOT)/../example/ios/Pods/NewRelicAgent/Frameworks",
 					"$(SRCROOT)/../../../ios",
 					"$(SRCROOT)/../../../ios/Frameworks",
 				);

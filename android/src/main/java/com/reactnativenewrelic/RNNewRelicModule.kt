@@ -20,8 +20,15 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
    * Test a native crash
    */
   @ReactMethod
-  fun crashNow(message: String?) {
-    NewRelic.crashNow(message);
+  fun crashNow(message: String?, promise: Promise) {
+    try {
+      NewRelic.crashNow(message)
+      promise.resolve(true)
+    } catch (e: Exception) {
+      e.printStackTrace()
+      NewRelic.recordHandledException(e)
+      promise.reject(e)
+    }
   }
 
   /**
@@ -43,8 +50,15 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
    * Name or rename an interaction
    */
   @ReactMethod
-  fun setInteractionName(interactionName: String) {
-    NewRelic.setInteractionName(interactionName)
+  fun setInteractionName(interactionName: String, promise: Promise) {
+    try {
+      NewRelic.setInteractionName(interactionName)
+      promise.resolve(true)
+    } catch (e: Exception) {
+      e.printStackTrace()
+      NewRelic.recordHandledException(e)
+      promise.reject(e)
+    }
   }
 
   /**
@@ -53,13 +67,14 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
    * This string is returned when you use startInteraction().
    */
   @ReactMethod
-  fun endInteraction(interactionID: String) {
+  fun endInteraction(interactionID: String, promise: Promise) {
     try {
-
       NewRelic.endInteraction(interactionID)
+      promise.resolve(true)
     } catch (e: Exception) {
       e.printStackTrace()
       NewRelic.recordHandledException(e)
+      promise.reject(e)
     }
   }
 
@@ -73,20 +88,27 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
    * Create custom metrics
    */
   @ReactMethod
-  fun recordMetric(category: String, name: String, readableMap: ReadableMap) {
-    val count = readableMap.getInt("count")
-    val totalValue = readableMap.getDouble("totalValue")
-    val exclusiveValue = readableMap.getDouble("exclusiveValue")
-    val countUnit = readableMap.getString("countUnit")
-    val valueUnit = readableMap.getString("valueUnit")
-    NewRelic.recordMetric(name, category, count, totalValue, exclusiveValue, countUnit as MetricUnit?, valueUnit as MetricUnit?)
+  fun recordMetric(category: String, name: String, readableMap: ReadableMap, promise: Promise) {
+    try {
+      val count = readableMap.getInt("count")
+      val totalValue = readableMap.getDouble("totalValue")
+      val exclusiveValue = readableMap.getDouble("exclusiveValue")
+      val countUnit = readableMap.getString("countUnit")
+      val valueUnit = readableMap.getString("valueUnit")
+      NewRelic.recordMetric(name, category, count, totalValue, exclusiveValue, countUnit as MetricUnit?, valueUnit as MetricUnit?)
+      promise.resolve(true)
+    } catch (e: Exception) {
+      e.printStackTrace()
+      NewRelic.recordHandledException(e)
+      promise.reject(e)
+    }
   }
 
   /**
    * Create or update an attribute
    */
   @ReactMethod
-  fun setAttribute(name: String?, readableMap: ReadableMap?) {
+  fun setAttribute(name: String?, readableMap: ReadableMap?, promise: Promise) {
     try {
       when (readableMap?.getType("value")) {
         ReadableType.Boolean -> NewRelic.setAttribute(name, readableMap.getBoolean("value"))
@@ -94,9 +116,11 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
         ReadableType.String -> NewRelic.setAttribute(name, readableMap.getString("value"))
         else -> Log.i(TAG, "setAttribute: Value type mismatch")
       }
+      promise.resolve(true)
     } catch (e: Exception) {
-      e.printStackTrace();
+      e.printStackTrace()
       NewRelic.recordHandledException(e)
+      promise.reject(e)
     }
   }
 
@@ -105,17 +129,24 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
    * Create or update multiple attributes
    */
   @ReactMethod
-  fun setAttributes(attributes: ReadableMap) {
-    attributes.toHashMap().forEach { (k, _) ->
-      if (attributes.getType(k) == ReadableType.Boolean) {
-        NewRelic.setAttribute(k, attributes.getBoolean(k))
+  fun setAttributes(attributes: ReadableMap, promise: Promise) {
+    try {
+      attributes.toHashMap().forEach { (k, _) ->
+        if (attributes.getType(k) == ReadableType.Boolean) {
+          NewRelic.setAttribute(k, attributes.getBoolean(k))
+        }
+        if (attributes.getType(k) == ReadableType.Number) {
+          NewRelic.setAttribute(k, attributes.getDouble(k))
+        }
+        if (attributes.getType(k) == ReadableType.String) {
+          NewRelic.setAttribute(k, attributes.getString(k))
+        }
       }
-      if (attributes.getType(k) == ReadableType.Number) {
-        NewRelic.setAttribute(k, attributes.getDouble(k))
-      }
-      if (attributes.getType(k) == ReadableType.String) {
-        NewRelic.setAttribute(k, attributes.getString(k))
-      }
+      promise.resolve(true)
+    } catch (e: Exception) {
+      e.printStackTrace()
+      NewRelic.recordHandledException(e)
+      promise.reject(e)
     }
   }
 
@@ -124,12 +155,14 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
    * This method removes the attribute specified by the name string
    */
   @ReactMethod
-  fun removeAttribute(name: String?) {
+  fun removeAttribute(name: String?, promise: Promise) {
     try {
       NewRelic.removeAttribute(name)
+      promise.resolve(true)
     } catch (e: Exception) {
       e.printStackTrace()
       NewRelic.recordHandledException(e)
+      promise.reject(e)
     }
   }
 
@@ -137,12 +170,14 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
    * Set custom user ID for associating sessions with events and attributes
    */
   @ReactMethod
-  fun setUserId(userId: String?) {
+  fun setUserId(userId: String?, promise: Promise) {
     try {
       NewRelic.setUserId(userId)
+      promise.resolve(true)
     } catch (e: Exception) {
-      e.printStackTrace();
+      e.printStackTrace()
       NewRelic.recordHandledException(e)
+      promise.reject(e)
     }
   }
 
@@ -150,9 +185,16 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
    * Track app activity that may be helpful for troubleshooting crashes
    */
   @ReactMethod
-  fun recordBreadcrumb(name: String?, readableMap: ReadableMap?) {
-    val attributes = readableMap?.toHashMap()
-    NewRelic.recordBreadcrumb(name, attributes)
+  fun recordBreadcrumb(name: String?, readableMap: ReadableMap?, promise: Promise) {
+    try {
+      val attributes = readableMap?.toHashMap()
+      NewRelic.recordBreadcrumb(name, attributes)
+      promise.resolve(true)
+    } catch (e: Exception) {
+      e.printStackTrace()
+      NewRelic.recordHandledException(e)
+      promise.reject(e)
+    }
   }
 
   /**
@@ -173,13 +215,15 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
    * To create a useful name, you might combine several attributes.
    */
   @ReactMethod
-  fun recordCustomEvent(eventType: String?, eventName: String?, readableMap: ReadableMap?) {
+  fun recordCustomEvent(eventType: String?, eventName: String?, readableMap: ReadableMap?, promise: Promise) {
     try {
       val attributes = readableMap?.toHashMap()
       NewRelic.recordCustomEvent(eventType, eventName, attributes)
+      promise.resolve(true)
     } catch (e: Exception) {
       e.printStackTrace()
       NewRelic.recordHandledException(e)
+      promise.reject(e)
     }
   }
 
@@ -187,20 +231,22 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
    * Record HTTP transactions at varying levels of detail
    */
   @ReactMethod
-  fun noticeNetworkRequest(url: String, readableMap: ReadableMap) {
-    val httpMethod = readableMap.getString("httpMethod")
-    val statusCode = readableMap.getDouble("statusCode").toInt()
-    val startTime = readableMap.getDouble("startTime")
-    val endTime = readableMap.getDouble("endTime")
-    val bytesSent = readableMap.getDouble("bytesSent")
-    val bytesReceived = readableMap.getDouble("bytesReceived")
-    val responseBody = readableMap.getString("responseBody")
-
+  fun noticeNetworkRequest(url: String, readableMap: ReadableMap, promise: Promise) {
     try {
+      val httpMethod = readableMap.getString("httpMethod")
+      val statusCode = readableMap.getDouble("statusCode").toInt()
+      val startTime = readableMap.getDouble("startTime")
+      val endTime = readableMap.getDouble("endTime")
+      val bytesSent = readableMap.getDouble("bytesSent")
+      val bytesReceived = readableMap.getDouble("bytesReceived")
+      val responseBody = readableMap.getString("responseBody")
+
       NewRelic.noticeHttpTransaction(url, httpMethod, statusCode, startTime.toLong(), endTime.toLong(), bytesSent.toLong(), bytesReceived.toLong(), responseBody)
+      promise.resolve(true)
     } catch (e: Exception) {
       e.printStackTrace()
       NewRelic.recordHandledException(e)
+      promise.reject(e)
     }
   }
 
@@ -208,46 +254,50 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
    * Record HTTP transactions at varying levels of detail
    */
   @ReactMethod
-  fun noticeNetworkFailure(url: String, readableMap: ReadableMap) {
-    val httpMethod = readableMap.getString("httpMethod")
-    val statusCode = readableMap.getInt("statusCode")
-    val startTime = readableMap.getDouble("startTime")
-    val endTime = readableMap.getDouble("endTime")
-    val bytesSent = readableMap.getDouble("bytesSent")
-    val bytesReceived = readableMap.getDouble("bytesReceived")
-    val responseBody = readableMap.getString("responseBody")
-
+  fun noticeNetworkFailure(url: String, readableMap: ReadableMap, promise: Promise) {
     try {
+      val httpMethod = readableMap.getString("httpMethod")
+      val statusCode = readableMap.getInt("statusCode")
+      val startTime = readableMap.getDouble("startTime")
+      val endTime = readableMap.getDouble("endTime")
+      val bytesSent = readableMap.getDouble("bytesSent")
+      val bytesReceived = readableMap.getDouble("bytesReceived")
+      val responseBody = readableMap.getString("responseBody")
       NewRelic.noticeHttpTransaction(url, httpMethod, statusCode, startTime.toLong(), endTime.toLong(), bytesSent.toLong(), bytesReceived.toLong(), responseBody)
+      promise.resolve(true)
     } catch (e: Exception) {
       e.printStackTrace()
       NewRelic.recordHandledException(e)
+      promise.reject(e)
     }
   }
 
   @ReactMethod
-  fun recordHandledException(error: ReadableMap, params: ReadableMap?) {
-    val message: String? = error.getString("message")
-    val stackFrames: ReadableArray = error.getArray("stack")!!
+  fun recordHandledException(error: ReadableMap, params: ReadableMap?, promise: Promise) {
+    try {
+      val message: String? = error.getString("message")
+      val stackFrames: ReadableArray = error.getArray("stack")!!
+      val customException: java.lang.Exception = Exception(message)
 
-    val customException: java.lang.Exception
-    customException = Exception(message)
+      val stackTraceElements = arrayOfNulls<StackTraceElement>(stackFrames.size())
 
-    val stackTraceElements = arrayOfNulls<StackTraceElement>(stackFrames.size())
-//    val componentStack = error.getString("componentStack");
+      for (i in 0 until stackFrames.size()) {
+        val stackFrame: ReadableMap = stackFrames.getMap(i)!!
+        val fn = stackFrame.getString("methodName")
+        val file = stackFrame.getString("file")
+        stackTraceElements[i] = StackTraceElement("", fn, file, -1)
+      }
+      customException.stackTrace = stackTraceElements
+      val attributes = params?.toHashMap()
 
-    for (i in 0 until stackFrames.size()) {
-      val stackFrame: ReadableMap = stackFrames.getMap(i)!!
-      val fn = stackFrame.getString("methodName")
-      val file = stackFrame.getString("file")
-      stackTraceElements[i] = StackTraceElement("", fn, file, -1)
+      NewRelic.recordHandledException(customException, attributes)
+
+      promise.resolve(true)
+    } catch (e: Exception) {
+      e.printStackTrace()
+      NewRelic.recordHandledException(e)
+      promise.reject(e)
     }
-
-    customException.stackTrace = stackTraceElements
-
-    val attributes = params?.toHashMap()
-
-    NewRelic.recordHandledException(customException, attributes)
   }
 
   companion object {
