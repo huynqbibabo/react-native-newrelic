@@ -67,7 +67,7 @@ PODS:
     - DoubleConversion
     - glog
   - glog (0.3.5)
-  - NewRelicAgent (7.2.1)
+  - NewRelicAgent (7.3.0)
   - OpenSSL-Universal (1.0.2.20):
     - OpenSSL-Universal/Static (= 1.0.2.20)
   - OpenSSL-Universal/Static (1.0.2.20)
@@ -237,7 +237,7 @@ PODS:
     - React-cxxreact (= 0.63.4)
     - React-jsi (= 0.63.4)
   - React-jsinspector (0.63.4)
-  - react-native-newrelic (1.7.1):
+  - react-native-newrelic (1.7.2):
     - NewRelicAgent
     - React-Core
   - React-RCTActionSheet (0.63.4):
@@ -443,7 +443,7 @@ SPEC CHECKSUMS:
   FlipperKit: ab353d41aea8aae2ea6daaf813e67496642f3d7d
   Folly: b73c3869541e86821df3c387eb0af5f65addfab4
   glog: 40a13f7840415b9a77023fbcae0f1e6f43192af3
-  NewRelicAgent: 5bdff9c0e3de85eb95c54ffc2262f3e23e3d71ba
+  NewRelicAgent: 12a8e3c151a459ce0b62fc49d1c4cb5529a2388f
   OpenSSL-Universal: ff34003318d5e1163e9529b08470708e389ffcdd
   RCTRequired: 082f10cd3f905d6c124597fd1c14f6f2655ff65e
   RCTTypeSafety: 8c9c544ecbf20337d069e4ae7fd9a377aadf504b
@@ -455,7 +455,7 @@ SPEC CHECKSUMS:
   React-jsi: a0418934cf48f25b485631deb27c64dc40fb4c31
   React-jsiexecutor: 93bd528844ad21dc07aab1c67cb10abae6df6949
   React-jsinspector: 58aef7155bc9a9683f5b60b35eccea8722a4f53a
-  react-native-newrelic: d1bce5441aa8918b7afb78d1d9891ee66b730dac
+  react-native-newrelic: 7310374891d6fcc268a30ea9da5ddb8d973c883e
   React-RCTActionSheet: 89a0ca9f4a06c1f93c26067af074ccdce0f40336
   React-RCTAnimation: 1bde3ecc0c104c55df246eda516e0deb03c4e49b
   React-RCTBlob: a97d378b527740cc667e03ebfa183a75231ab0f0

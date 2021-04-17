@@ -48,7 +48,7 @@ public class MainApplication extends Application implements ReactApplication {
   public void onCreate() {
     super.onCreate();
     NewRelic.withApplicationToken(
-      "yourApplicationToken"
+      "eu01xxff4c9c189a43fa5cbc07c90ca1f99a12823b-NRMA"
     ).start(this);
 
     SoLoader.init(this, /* native exopackage */ false);

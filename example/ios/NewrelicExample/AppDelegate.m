@@ -43,7 +43,7 @@
 
   [NewRelic enableFeatures:NRFeatureFlag_SwiftInteractionTracing];
   
-  [NewRelic startWithApplicationToken:@"yourApplicationToken"];
+  [NewRelic startWithApplicationToken:@"eu01xxff4c9c189a43fa5cbc07c90ca1f99a12823b-NRMA"];
 
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
   RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge

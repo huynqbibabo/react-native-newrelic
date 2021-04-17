@@ -12,7 +12,7 @@ buildscript {
     classpath 'com.android.tools.build:gradle:3.2.1'
     // noinspection DifferentKotlinGradleVersion
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    classpath "com.newrelic.agent.android:agent-gradle-plugin:5.+"
+    classpath "com.newrelic.agent.android:android-agent:6.+"
   }
 }
 
@@ -132,5 +132,5 @@ dependencies {
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
   // newrelic agent
-  implementation "com.newrelic.agent.android:android-agent:5.+"
+  implementation "com.newrelic.agent.android:android-agent:6.+"
 }

@@ -20,68 +20,6 @@ export function enableAutoRecordJSUncaughtException() {
   });
 }
 
-function parseErrorStack(e: any): Array<any> {
-  if (!e || !e.stack) {
-    return [];
-  }
-  return Array.isArray(e.stack)
-    ? e.stack
-    : parse(e.stack).map((frame) => ({
-        ...frame,
-        column: frame.column != null ? frame.column - 1 : null,
-      }));
-}
-
-function pareJSException(error?: any, isFatal?: boolean): any {
-  const stack = parseErrorStack(error);
-  const currentExceptionID = new Date().getTime();
-  const originalMessage = error.message || '';
-  let message = originalMessage;
-  if (error.componentStack != null) {
-    message += `\n\nThis error is located at:${error.componentStack}`;
-  }
-  const namePrefix =
-    error.name == null || error.name === '' ? '' : `${error.name}: `;
-
-  if (!message.startsWith(namePrefix)) {
-    message = namePrefix + message;
-  }
-
-  message =
-    error.jsEngine == null
-      ? message
-      : `${message}, js engine: ${error.jsEngine}`;
-
-  const isHandledByLogBox = error.forceRedbox !== true;
-
-  const jSException = {
-    message,
-    originalMessage: message === originalMessage ? null : originalMessage,
-    name: error.name == null || error.name === '' ? null : error.name,
-    componentStack:
-      typeof error.componentStack === 'string' ? error.componentStack : null,
-    stack,
-    id: currentExceptionID,
-    isFatal,
-    extraData: {
-      jsEngine: error.jsEngine,
-      rawStack: error.stack,
-
-      // Hack to hide native redboxes when in the LogBox experiment.
-      // This is intentionally untyped and stuffed here, because it is temporary.
-      suppressRedBox: isHandledByLogBox,
-    },
-  };
-
-  if (__DEV__) {
-    // we feed back into console.error, to make sure any methods that are
-    // monkey patched on top of console.error are called when coming from
-    // handleException
-    console.error(jSException.message);
-  }
-  return jSException;
-}
-
 /**
  * Records a js handled exception.
  * Optionally takes map with additional attributes showing context.
@@ -263,6 +201,68 @@ export function noticeNetworkFailure(url: string, options: RequestOptions) {
     options
   );
   return RNNewRelic.noticeNetworkFailure(url, attributes);
+}
+
+function parseErrorStack(e: any): Array<any> {
+  if (!e || !e.stack) {
+    return [];
+  }
+  return Array.isArray(e.stack)
+    ? e.stack
+    : parse(e.stack).map((frame) => ({
+        ...frame,
+        column: frame.column != null ? frame.column - 1 : null,
+      }));
+}
+
+function pareJSException(error?: any, isFatal?: boolean): any {
+  const stack = parseErrorStack(error);
+  const currentExceptionID = new Date().getTime();
+  const originalMessage = error.message || '';
+  let message = originalMessage;
+  if (error.componentStack != null) {
+    message += `\n\nThis error is located at:${error.componentStack}`;
+  }
+  const namePrefix =
+    error.name == null || error.name === '' ? '' : `${error.name}: `;
+
+  if (!message.startsWith(namePrefix)) {
+    message = namePrefix + message;
+  }
+
+  message =
+    error.jsEngine == null
+      ? message
+      : `${message}, js engine: ${error.jsEngine}`;
+
+  const isHandledByLogBox = error.forceRedbox !== true;
+
+  const jSException = {
+    message,
+    originalMessage: message === originalMessage ? null : originalMessage,
+    name: error.name == null || error.name === '' ? null : error.name,
+    componentStack:
+      typeof error.componentStack === 'string' ? error.componentStack : null,
+    stack,
+    id: currentExceptionID,
+    isFatal,
+    extraData: {
+      jsEngine: error.jsEngine,
+      rawStack: error.stack,
+
+      // Hack to hide native redboxes when in the LogBox experiment.
+      // This is intentionally untyped and stuffed here, because it is temporary.
+      suppressRedBox: isHandledByLogBox,
+    },
+  };
+
+  if (__DEV__) {
+    // we feed back into console.error, to make sure any methods that are
+    // monkey patched on top of console.error are called when coming from
+    // handleException
+    console.error(jSException.message);
+  }
+  return jSException;
 }
 
 export type {

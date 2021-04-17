@@ -1,0 +1,10 @@
+uploading map to new relic
+executing upload_map_file_to_new_relic
+New Relic: map file upload attempt #1 (of 3)
+Using URL: https://mobile-symbol-upload.eu01.nr-data.net
+New Relic: map file upload attempt #2 (of 3)
+Using URL: https://mobile-symbol-upload.eu01.nr-data.net
+New Relic: map file upload attempt #3 (of 3)
+Using URL: https://mobile-symbol-upload.eu01.nr-data.net
+executing upload_dsym_to_new_relic
+new relic: successfully uploaded dsym files

@@ -21,14 +21,8 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
    */
   @ReactMethod
   fun crashNow(message: String?, promise: Promise) {
-    try {
-      NewRelic.crashNow(message)
-      promise.resolve(true)
-    } catch (e: Exception) {
-      e.printStackTrace()
-      NewRelic.recordHandledException(e)
-      promise.reject(e)
-    }
+    NewRelic.crashNow(message)
+    promise.resolve(true)
   }
 
   /**
