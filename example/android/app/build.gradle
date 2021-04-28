@@ -205,9 +205,8 @@ dependencies {
         implementation jscFlavor
     }
 
-    implementation "com.newrelic.agent.android:android-agent:6.+"
-
     implementation project(':reactnativenewrelic')
+    implementation "com.newrelic.agent.android:android-agent:6.+"
 }
 
 // Run this once to be able to run the application with BUCK

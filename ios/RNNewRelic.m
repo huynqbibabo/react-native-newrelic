@@ -1,4 +1,4 @@
-#import "RNNewRelicModule.h"
+#import "RNNewRelic.h"
 #import "RCTConvert.h"
 #import "RCTExceptionsManager.h"
 

@@ -1,9 +1,3 @@
-//
-//  PrefixHeader.pch
-//  NewrelicExample
-//
-//  Created by Quang Huy on 12/24/20.
-//
 #ifdef __OBJC__
 
 #import <NewRelic/NewRelic.h>
