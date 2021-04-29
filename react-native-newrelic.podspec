@@ -14,7 +14,7 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/huynqbibabo/react-native-newrelic.git", :tag => "#{s.version}" }
 
 
-  s.source_files = "ios/RNNewrelic/*.{h,m}"
+  s.source_files = "ios/**/*.{h,m,mm}"
 
 
   s.dependency "React-Core"

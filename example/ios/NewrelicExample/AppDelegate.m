@@ -37,6 +37,7 @@
 //  #ifdef FB_SONARKIT_ENABLED
 //    InitializeFlipper(application);
 //  #endif
+  [NewRelic enableFeatures:NRFeatureFlag_CrashReporting];
   [NewRelic startWithApplicationToken:@"eu01xxff4c9c189a43fa5cbc07c90ca1f99a12823b-NRMA"];
 
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
