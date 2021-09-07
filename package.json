@@ -1,5 +1,5 @@
 {
-  "name": "react-native-newrelic",
+  "name": "@bibabovn/react-native-newrelic",
   "version": "1.8.2",
   "description": "New relic module for react native IOS and Android app",
   "main": "lib/commonjs/index",
