@@ -6,7 +6,8 @@ import com.newrelic.agent.android.NewRelic
 import com.newrelic.agent.android.metric.MetricUnit
 
 
-class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
+class RNNewRelicModule(reactContext: ReactApplicationContext) :
+  ReactContextBaseJavaModule(reactContext) {
 
   override fun getName(): String {
     return "RNNewRelic"
@@ -89,7 +90,15 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
       val exclusiveValue = readableMap.getDouble("exclusiveValue")
       val countUnit = readableMap.getString("countUnit")
       val valueUnit = readableMap.getString("valueUnit")
-      NewRelic.recordMetric(name, category, count, totalValue, exclusiveValue, countUnit as MetricUnit?, valueUnit as MetricUnit?)
+      NewRelic.recordMetric(
+        name,
+        category,
+        count,
+        totalValue,
+        exclusiveValue,
+        countUnit as MetricUnit?,
+        valueUnit as MetricUnit?
+      )
       promise.resolve(true)
     } catch (e: Exception) {
       e.printStackTrace()
@@ -209,7 +218,12 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
    * To create a useful name, you might combine several attributes.
    */
   @ReactMethod
-  fun recordCustomEvent(eventType: String?, eventName: String?, readableMap: ReadableMap?, promise: Promise) {
+  fun recordCustomEvent(
+    eventType: String?,
+    eventName: String?,
+    readableMap: ReadableMap?,
+    promise: Promise
+  ) {
     try {
       val attributes = readableMap?.toHashMap()
       NewRelic.recordCustomEvent(eventType, eventName, attributes)
@@ -235,7 +249,16 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
       val bytesReceived = readableMap.getDouble("bytesReceived")
       val responseBody = readableMap.getString("responseBody")
 
-      NewRelic.noticeHttpTransaction(url, httpMethod, statusCode, startTime.toLong(), endTime.toLong(), bytesSent.toLong(), bytesReceived.toLong(), responseBody)
+      NewRelic.noticeHttpTransaction(
+        url,
+        httpMethod,
+        statusCode,
+        startTime.toLong(),
+        endTime.toLong(),
+        bytesSent.toLong(),
+        bytesReceived.toLong(),
+        responseBody
+      )
       promise.resolve(true)
     } catch (e: Exception) {
       e.printStackTrace()
@@ -257,7 +280,16 @@ class RNNewRelicModule(reactContext: ReactApplicationContext) : ReactContextBase
       val bytesSent = readableMap.getDouble("bytesSent")
       val bytesReceived = readableMap.getDouble("bytesReceived")
       val responseBody = readableMap.getString("responseBody")
-      NewRelic.noticeHttpTransaction(url, httpMethod, statusCode, startTime.toLong(), endTime.toLong(), bytesSent.toLong(), bytesReceived.toLong(), responseBody)
+      NewRelic.noticeHttpTransaction(
+        url,
+        httpMethod,
+        statusCode,
+        startTime.toLong(),
+        endTime.toLong(),
+        bytesSent.toLong(),
+        bytesReceived.toLong(),
+        responseBody
+      )
       promise.resolve(true)
     } catch (e: Exception) {
       e.printStackTrace()

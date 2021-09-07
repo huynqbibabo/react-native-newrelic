@@ -10,13 +10,14 @@
     "clean-project": "rm -rf $TMPDIR/react-* && rm -rf $TMPDIR/metro-* && watchman watch-del-all && rm -rf node_modules && yarn cache clean && rm -rf ios/build && rm -rf ios/Podfile.lock && rm -rf ios/pods && rm -rf android/build && rm -rf android/app/build"
   },
   "dependencies": {
-    "react": "16.13.1",
-    "react-native": "0.63.4"
+    "react": "17.0.2",
+    "react-native": "0.65.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.10",
+    "@babel/core": "^7.12.9",
     "@babel/runtime": "^7.12.5",
-    "babel-plugin-module-resolver": "^4.0.0",
-    "metro-react-native-babel-preset": "^0.64.0"
+    "babel-plugin-module-resolver": "^4.1.0",
+    "metro-react-native-babel-preset": "^0.66.0",
+    "react-native-codegen": "^0.0.7"
   }
 }

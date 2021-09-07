@@ -9,33 +9,34 @@ import com.facebook.react.ReactPackage;
 import com.facebook.soloader.SoLoader;
 
 import java.util.List;
+
 import com.reactnativenewrelic.RNNewRelicPackage;
 import com.newrelic.agent.android.NewRelic;
 
 public class MainApplication extends Application implements ReactApplication {
 
   private final ReactNativeHost mReactNativeHost =
-      new ReactNativeHost(this) {
-        @Override
-        public boolean getUseDeveloperSupport() {
-          return BuildConfig.DEBUG;
-        }
+    new ReactNativeHost(this) {
+      @Override
+      public boolean getUseDeveloperSupport() {
+        return BuildConfig.DEBUG;
+      }
 
-        @Override
-        protected List<ReactPackage> getPackages() {
-          @SuppressWarnings("UnnecessaryLocalVariable")
-          List<ReactPackage> packages = new PackageList(this).getPackages();
-          // Packages that cannot be autolinked yet can be added manually here, for NewrelicExample:
-          // packages.add(new MyReactNativePackage());
-          packages.add(new RNNewRelicPackage());
-          return packages;
-        }
+      @Override
+      protected List<ReactPackage> getPackages() {
+        @SuppressWarnings("UnnecessaryLocalVariable")
+        List<ReactPackage> packages = new PackageList(this).getPackages();
+        // Packages that cannot be autolinked yet can be added manually here, for NewrelicExample:
+        // packages.add(new MyReactNativePackage());
+        packages.add(new RNNewRelicPackage());
+        return packages;
+      }
 
-        @Override
-        protected String getJSMainModuleName() {
-          return "index";
-        }
-      };
+      @Override
+      protected String getJSMainModuleName() {
+        return "index";
+      }
+    };
 
   @Override
   public ReactNativeHost getReactNativeHost() {
