@@ -1,6 +1,7 @@
 buildscript {
   // Buildscript is evaluated before everything else so we can't use getExtOrDefault
   def kotlin_version = rootProject.ext.has('kotlinVersion') ? rootProject.ext.get('kotlinVersion') : project.properties['Newrelic_kotlinVersion']
+  def newrelic_version = rootProject.ext.has('newrelicVersion') ? rootProject.ext.get('newrelicVersion') : project.properties['Newrelic_newrelicVersion']
 
   repositories {
     google()
@@ -11,7 +12,7 @@ buildscript {
     classpath 'com.android.tools.build:gradle:3.2.1'
     // noinspection DifferentKotlinGradleVersion
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    classpath "com.newrelic.agent.android:android-agent:6.+"
+    classpath "com.newrelic.agent.android:android-agent:$newrelic_version"
   }
 }
 
@@ -119,6 +120,7 @@ repositories {
 }
 
 def kotlin_version = getExtOrDefault('kotlinVersion')
+def newrelic_version = getExtOrDefault('newrelicVersion')
 
 dependencies {
   // noinspection GradleDynamicVersion
@@ -126,5 +128,5 @@ dependencies {
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
   // newrelic agent
-  implementation "com.newrelic.agent.android:android-agent:6.+"
+  implementation "com.newrelic.agent.android:android-agent:$newrelic_version"
 }
