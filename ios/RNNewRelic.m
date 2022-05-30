@@ -1,6 +1,6 @@
 #import "RNNewRelic.h"
-#import "RCTConvert.h"
-#import "RCTExceptionsManager.h"
+#import <React/RCTConvert.h>
+#import <React/RCTExceptionsManager.h>
 
 @implementation RNNewRelic
 
